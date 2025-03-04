@@ -1,0 +1,10 @@
+{
+  "model": "deepseek-chat",
+  "messages": [
+    {
+      "role": "user",
+      "content": "こんにちは、元気ですか？"
+    }
+  ],
+  "max_tokens": 150
+}

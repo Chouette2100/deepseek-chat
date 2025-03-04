@@ -1,0 +1,10 @@
+{
+  "model": "deepseek-code",
+  "messages": [
+    {
+      "role": "user",
+      "content": "PythonでHello Worldを出力するコードを書いてください。"
+    }
+  ],
+  "max_tokens": 150
+}

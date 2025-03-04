@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek Q&A</title>
+</head>
+<body>
+    <h1>DeepSeek Q&A</h1>
+    <form id="askForm">
+        <label for="question">質問:</label>
+        {{/*
+        <input type="text" id="question" name="question" required>
+        */}}
+        <textarea id="question" name='question' cols='60' rows='2' required maxlength="370"）></textarea>
+        <button type="submit">送信</button>
+    </form>
+    <h2>回答:</h2>
+    <div id="answer"></div>
+
+    <button id="saveCache">キャッシュを保存</button>
+    <button id="clearCache">キャッシュをクリア</button>
+
+    <script>
+        document.getElementById('askForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const question = document.getElementById('question').value;
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `question=${encodeURIComponent(question)}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('answer').innerText = data.answer;
+            });
+        });
+
+        document.getElementById('saveCache').addEventListener('click', function() {
+            fetch('/save', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        });
+
+        document.getElementById('clearCache').addEventListener('click', function() {
+            fetch('/clear', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        });
+    </script>
+</body>
+</html>
