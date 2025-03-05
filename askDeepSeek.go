@@ -20,9 +20,9 @@ func askDeepSeek(question, apiKey string) (string, error) {
 				"content": question,
 			},
 		},
-		"max_tokens": 150, // 最大トークン数を指定
+		// "max_tokens": 150, // 最大トークン数を指定
+		"max_tokens": 1000, // 最大トークン数を指定
 	}
-
 	// JSONに変換
 	jsonData, err := json.Marshal(payload)
 	if err != nil {

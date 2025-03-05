@@ -6,12 +6,20 @@ import (
 	// "io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
-var cache map[string]string
+// var cache map[string]string
+type QA struct {
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+	Ts       string `json:"ts"`
+}
+
+var cache []QA
 
 func init() {
 	// .envファイルを読み込む
@@ -21,7 +29,20 @@ func init() {
 	}
 
 	// キャッシュを初期化
-	cache = make(map[string]string)
+	// cache = make(map[string]string)
+
+	// キャッシュファイル cache/QA.json を cache/yymmdd_hhmmss.json に変更
+	now := time.Now()
+	newFilename := fmt.Sprintf("cache/%s.json", now.Format("20060102_150405"))
+	oldFilename := "cache/QA.json"
+	err = os.Rename(oldFilename, newFilename)
+	if err != nil {
+		fmt.Println("Error renaming cache file:", err)
+		// ファイルが存在しない場合でも、処理を続けるためにエラーを握りつぶす
+	}
+
+	// キャッシュをクリアする
+	cache = make([]QA, 0)
 	loadCache()
 }
 
@@ -41,10 +62,10 @@ func main() {
 		question := c.PostForm("question")
 
 		// キャッシュに存在する場合はキャッシュから返す
-		if answer, ok := cache[question]; ok {
-			c.JSON(http.StatusOK, gin.H{"answer": answer})
-			return
-		}
+		// if answer, ok := cache[question]; ok {
+		// 	c.JSON(http.StatusOK, gin.H{"answer": answer})
+		// 	return
+		// }
 
 		// DeepSeek APIにリクエストを送信
 		apiKey := os.Getenv("DEEPSEEK_API_KEY")
@@ -55,7 +76,8 @@ func main() {
 		}
 
 		// キャッシュに保存
-		cache[question] = answer
+		// cache[question] = answer
+		cache = append(cache, QA{question, answer, time.Now().Format("2006-01-02 15:04:05")})
 		saveCache()
 
 		c.JSON(http.StatusOK, gin.H{"answer": answer})
@@ -69,7 +91,8 @@ func main() {
 
 	// キャッシュをクリア
 	r.POST("/clear", func(c *gin.Context) {
-		cache = make(map[string]string)
+		// cache = make(map[string]string)
+		cache = make([]QA, 0)
 		saveCache()
 		c.JSON(http.StatusOK, gin.H{"message": "Cache cleared"})
 	})
@@ -87,10 +110,42 @@ func askDeepSeek(question, apiKey string) (string, error) {
 }
 */
 
+func loadCache() (err error) {
+	filename := "cache/QA.json"
+	file, err := os.Open(filename)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	cache = make([]QA, 0)
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&cache)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func saveCache() error {
+	filename := "cache/QA.json"
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", " ") // インデントを設定（オプション）
+	return encoder.Encode(cache)
+}
+
+/*
 // キャッシュをファイルに保存
 func saveCache() {
 	data, err := json.Marshal(cache)
-	if err != nil {
+	if (err != nil) {
 		fmt.Println("Error marshalling cache:", err)
 		return
 	}
@@ -114,3 +169,4 @@ func loadCache() {
 		fmt.Println("Error unmarshalling cache:", err)
 	}
 }
+*/
