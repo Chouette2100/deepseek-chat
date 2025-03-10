@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek Q&A</title>
+</head>
+
+<body>
+    <h1>DeepSeek Q&A</h1>
+    <form id="askForm" action="/dschat" method="POST">
+        {{ $t := .Stmp }}
+        {{ with .Qa }}
+        <label for="modelname">Model:</label>
+        <select name="modelname">
+            <option value="deepseek-chat" {{ if eq .Modelname "deepseek-chat" }}selected{{ end }}>deepseek-chat</option>
+            <option value="deepseek-code" {{ if eq .Modelname "deepseek-code" }}selected{{ end }}>deepseek-code</option>
+        </select>
+        <label for="maxtokens">Max Tokens:</label>
+        <select name="maxtokens">
+            <option value="150" {{ if eq .Maxtokens 150 }}selected{{ end }}>150</option>
+            <option value="500" {{ if eq .Maxtokens 500 }}selected{{ end }}>500</option>
+            <option value="1000" {{ if eq .Maxtokens 1000 }}selected{{ end }}>1000</option>
+            <option value="1500" {{ if eq .Maxtokens 1500 }}selected{{ end }}>1500</option>
+            <option value="2000" {{ if eq .Maxtokens 2000 }}selected{{ end }}>2000</option>
+        </select>
+
+        <label for="temperature">Temperature:</label>
+        <select name="temperature">
+            <option value="0.0" {{ if eq $t "0.0" }}selected{{ end }}>0.0</option>
+            <option value="0.1" {{ if eq $t "0.1" }}selected{{ end }}>0.1</option>
+            <option value="0.2" {{ if eq $t "0.2" }}selected{{ end }}>0.2</option>
+            <option value="0.3" {{ if eq $t "0.3" }}selected{{ end }}>0.3</option>
+            <option value="0.4" {{ if eq $t "0.4" }}selected{{ end }}>0.4</option>
+            <option value="0.5" {{ if eq $t "0.5" }}selected{{ end }}>0.5</option>
+            <option value="0.6" {{ if eq $t "0.6" }}selected{{ end }}>0.6</option>
+            <option value="0.7" {{ if eq $t "0.7" }}selected{{ end }}>0.7</option>
+        </select>
+        <br><label for="question">質問:</label>
+        <br><textarea id="question" name='question' style='width: 80%;' rows='1' required maxlength="1000"></textarea>
+        <br><button type="submit">送信</button>
+        {{ end }}
+    </form>
+
+    <hr>
+        <div>
+        {{ if .HasPrevious }}
+        <a href="/dschat?page={{ .PreviousPage }}">前へ</a>
+        {{ end }}
+        {{ if .HasNext }}
+        <a href="/dschat?page={{ .NextPage }}">次へ</a>
+        {{ end }}
+    </div>
+
+
+    <div>
+        {{ range .Qalist }}
+        id={{ .Id }}&nbsp;&nbsp;
+        modelname={{ .Modelname }}&nbsp;&nbsp;
+        maxtokens={{ .Maxtokens }}&nbsp;&nbsp;
+        [{{ TimeToStringY .Timestamp }}&nbsp;({{ .Responsetime }}ms)]&nbsp;&nbsp;
+        <textarea id="question" name='question' style='width: 80%;' rows='1' readonly>{{ .Question }}</textarea>
+        <textarea id="answer" name='answer' style='width: 80%;' rows='1' readonly>{{ .Answer }}</textarea>
+        <hr>
+        {{ end }}
+    </div>
+
+    <div>
+        {{ if .HasPrevious }}
+        <a href="/dschat?page={{ .PreviousPage }}">前へ</a>
+        {{ end }}
+        {{ if .HasNext }}
+        <a href="/dschat?page={{ .NextPage }}">次へ</a>
+        {{ end }}
+    </div>
+</body>
+
+</html>
