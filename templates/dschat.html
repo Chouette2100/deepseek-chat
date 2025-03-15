@@ -16,6 +16,9 @@
         <select name="modelname">
             <option value="deepseek-chat" {{ if eq .Modelname "deepseek-chat" }}selected{{ end }}>deepseek-chat</option>
             <option value="deepseek-code" {{ if eq .Modelname "deepseek-code" }}selected{{ end }}>deepseek-code</option>
+            <option value="deepseek-reasoner" {{ if eq .Modelname "deepseek-reasoner" }}selected{{ end }}>deepseek-reasoner</option>
+            <option value="claude-3-7-sonnet-20250219" {{ if eq .Modelname "claude-3-7-sonnet-20250219" }}selected{{ end
+                }}>claude-3-7-sonnet-20250219</option>
         </select>
         <label for="maxtokens">Max Tokens:</label>
         <select name="maxtokens">
@@ -24,6 +27,7 @@
             <option value="1000" {{ if eq .Maxtokens 1000 }}selected{{ end }}>1000</option>
             <option value="1500" {{ if eq .Maxtokens 1500 }}selected{{ end }}>1500</option>
             <option value="2000" {{ if eq .Maxtokens 2000 }}selected{{ end }}>2000</option>
+            <option value="3000" {{ if eq .Maxtokens 3000 }}selected{{ end }}>3000</option>
         </select>
 
         <label for="temperature">Temperature:</label>
@@ -37,43 +41,70 @@
             <option value="0.6" {{ if eq $t "0.6" }}selected{{ end }}>0.6</option>
             <option value="0.7" {{ if eq $t "0.7" }}selected{{ end }}>0.7</option>
         </select>
+        <br><label for="system">前提:</label>
+        <textarea id="system" name='system' style='width: 50em;' rows='1' maxlength="1000">{{.System}}</textarea>
         <br><label for="question">質問:</label>
-        <br><textarea id="question" name='question' style='width: 80%;' rows='1' required maxlength="1000"></textarea>
+        <textarea id="question" name='question' style='width: 50em;' rows='1' maxlength="1000"></textarea>
         <br><button type="submit">送信</button>
         {{ end }}
-    </form>
-
-    <hr>
-        <div>
-        {{ if .HasPrevious }}
-        <a href="/dschat?page={{ .PreviousPage }}">前へ</a>
-        {{ end }}
-        {{ if .HasNext }}
-        <a href="/dschat?page={{ .NextPage }}">次へ</a>
-        {{ end }}
-    </div>
-
-
-    <div>
-        {{ range .Qalist }}
-        id={{ .Id }}&nbsp;&nbsp;
-        modelname={{ .Modelname }}&nbsp;&nbsp;
-        maxtokens={{ .Maxtokens }}&nbsp;&nbsp;
-        [{{ TimeToStringY .Timestamp }}&nbsp;({{ .Responsetime }}ms)]&nbsp;&nbsp;
-        <textarea id="question" name='question' style='width: 80%;' rows='1' readonly>{{ .Question }}</textarea>
-        <textarea id="answer" name='answer' style='width: 80%;' rows='1' readonly>{{ .Answer }}</textarea>
         <hr>
-        {{ end }}
-    </div>
+        検索対象: <textarea name="target" value="{{ .Target }}" rows='1' style='width: 30em;'>{{.Target}}</textarea>
+        <button type="submit">検索</button>
+        <hr>
+        <div>
+            {{ if .HasPrevious }}
+            <a
+                href="/dschat?page={{ .PreviousPage }}&modelname={{.Qa.Modelname}}&maxtokens={{.Qa.Maxtokens}}&temperature={{.Qa.Temperature}}&target={{.Target}}&system={{.Qa.System}}">前へ</a>
+            {{ end }}
+            {{ if .HasNext }}
+            <a
+                href="/dschat?page={{ .NextPage }}&modelname={{.Qa.Modelname}}&maxtokens={{.Qa.Maxtokens}}&temperature={{.Qa.Temperature}}&target={{.Target}}&system={{.Qa.System}}">次へ</a>
+            {{ end }}
+        </div>
 
-    <div>
-        {{ if .HasPrevious }}
-        <a href="/dschat?page={{ .PreviousPage }}">前へ</a>
-        {{ end }}
-        {{ if .HasNext }}
-        <a href="/dschat?page={{ .NextPage }}">次へ</a>
-        {{ end }}
-    </div>
+
+        <div>
+            <table>
+                {{ $i := 0 }}
+                {{ range .Qalist }}
+                <tr>
+                    <td><input type="hidden" name=id{{$i}} value="{{.Id}}"></td>
+                    <td>
+                        id={{ .Id }}&nbsp;&nbsp;
+                        modelname={{ .Modelname }}&nbsp;&nbsp;
+                        maxtokens={{ .Maxtokens }}&nbsp;&nbsp;
+                        [{{ TimeToStringY .Timestamp }}&nbsp;({{ .Responsetime }}ms)]&nbsp;&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" id="checkbox{{$i}}" name="checkbox{{$i}}" style="margin-right: 10px;">
+                    </td>
+                    <td>
+                        <textarea id="question{{$i}}" name='question{{$i}}' style='width: 50em;' rows='1'
+                            readonly>{{ .Question }}</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <textarea id="answer{{$i}}" name='answer{{$i}}' style='width: 50em;' rows='1'
+                            readonly>{{ .Answer }}</textarea>
+                    </td>
+                </tr>
+                {{ $i = add $i 1 }}
+                {{ end }}
+            </table>
+        </div>
+
+        <div>
+            {{ if .HasPrevious }}
+            <a href="/dschat?page={{ .PreviousPage }}">前へ</a>
+            {{ end }}
+            {{ if .HasNext }}
+            <a href="/dschat?page={{ .NextPage }}">次へ</a>
+            {{ end }}
+        </div>
+    </form>
 </body>
 
 </html>

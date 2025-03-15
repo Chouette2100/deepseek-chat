@@ -15,7 +15,11 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-const version = "000200"
+/*
+000300  前提と必要な履歴の送信機能を作成する
+*/
+
+const version = "000300"
 
 type CustomTime time.Time
 
@@ -35,28 +39,22 @@ func (ct *CustomTime) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-/*
-type Qa_records struct {
-	Id           int        `json:"id"`
-	Timestamp    CustomTime `json:"timestamp"`
-	Responsetime int64      `json:"responsetime"`
-	Modelname    string     `json:"model_name"`
-	Maxtokens    int        `json:"maxtokens"`
-	Question     string     `json:"question"`
-	Answer       string     `json:"answer"`
-}
-*/
-
+// データベースの構造体
 type Qa_recordsDB struct {
-	Id           int       `json:"id"`
-	Timestamp    time.Time `json:"timestamp"`
-	Responsetime int64     `json:"responsetime"`
-	Modelname    string    `json:"model_name"`
-	Maxtokens    int       `json:"maxtokens"`
-	Temperature  float64    `json:"temperature"`
-	Question     string    `json:"question"`
-	Answer       string    `json:"answer"`
+        Id           int       `json:"id"`
+        Timestamp    time.Time `json:"timestamp"`
+        Responsetime int64     `json:"responsetime"`
+        Modelname    string    `json:"model_name"`
+        Maxtokens    int       `json:"maxtokens"`
+        Temperature  float64   `json:"temperature"`
+        System       string    `json:"system"`
+        Question     string    `json:"question"`
+        Answer       string    `json:"answer"`
+        Itokens      int       `json:"itokens"`
+        Otokens      int       `json:"otokens"`
+        StopReason   string    `json:"stop_reason"`
 }
+
 
 func init() {
 	// .envファイルを読み込む

@@ -13,6 +13,7 @@ import (
 
 func askDeepSeek(
 	qa Qa_recordsDB,
+	history []qah,
 	apiKey string,
 ) (
 	content string,
@@ -24,17 +25,36 @@ func askDeepSeek(
 	url := "https://api.deepseek.com/v1/chat/completions"
 
 	// リクエストボディ
+	var msgs []map[string]string
+
+	// Claudeで言うsystem、要するに大前提
+	if qa.System != "" {
+		msgs = append(msgs, map[string]string{"role": "user", "content": qa.System})
+	}
+
+	// Q&Aの履歴を追加
+	for i := 0; i < len(history); i++ {
+		msgs = append(msgs, map[string]string{"role": "user", "content": history[i].Question})
+		msgs = append(msgs, map[string]string{"role": "assistant", "content": history[i].Answer})
+	}
+
+	// ユーザーの質問を追加
+		msgs = append(msgs, map[string]string{"role": "user", "content": qa.Question})
+
 	payload := map[string]interface{}{
 		// "model": "deepseek-chat", // 使用するモデルを指定
 		"model": qa.Modelname, // 使用するモデルを指定
-		"messages": []map[string]string{
-			{
-				"role":    "user",
-				"content": qa.Question,
+		/*
+			"messages": []map[string]string{
+				{
+					"role":    "user",
+					"content": qa.Question,
+				},
 			},
-		},
+		*/
+		"messages": msgs,
 		// "max_tokens": 150, // 最大トークン数を指定
-		"max_tokens": qa.Maxtokens, // 最大トークン数を指定
+		"max_tokens":  qa.Maxtokens,   // 最大トークン数を指定
 		"temperature": qa.Temperature, // 温度を指定
 	}
 	// JSONに変換

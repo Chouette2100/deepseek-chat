@@ -16,12 +16,22 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
+type qah struct {
+	Sid      string
+	Question string
+	Answer   string
+}
+
+var history []qah
+
 func HandlerDschat(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 	// 1 ページあたりのレコード数
 	const pageSize = 10
+
+	history = make([]qah, 0)
 
 	// ページ番号を取得 (デフォルトは 1)
 	pageStr := r.URL.Query().Get("page")
@@ -33,11 +43,12 @@ func HandlerDschat(
 	type Top struct {
 		Qa           Qa_recordsDB
 		Qalist       []Qa_recordsDB
+		Target       string
 		HasNext      bool
 		HasPrevious  bool
 		NextPage     int
 		PreviousPage int
-		Stmp		 string
+		Stmp         string
 	}
 	top := Top{}
 
@@ -53,25 +64,54 @@ func HandlerDschat(
 		top.Qa.Maxtokens = 1000
 	}
 	top.Stmp = r.FormValue("temperature")
-	if top.Stmp == ""  {
+	if top.Stmp == "" {
 		top.Stmp = "0.2"
 	}
-	top.Qa.Temperature, _ = strconv.ParseFloat(top.Stmp, 64)	
+	top.Qa.Temperature, _ = strconv.ParseFloat(top.Stmp, 64)
+
+	top.Target = r.FormValue("target")
+	top.Qa.System = r.FormValue("system")
+	if top.Qa.System == "" {
+		top.Qa.System = "あなたはGoのエクスパート。環境はLinuxMint21.3、Go1.23.1、net/http＋go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはできるだけ使わない、基本goのWebAssemblyで済ませる。"
+	}
+
+	for i := 9; i >= 0; i-- {
+		it := r.FormValue(fmt.Sprintf("checkbox%d", i))
+		if it == "on" {
+			history = append(history,
+				qah{Sid: r.FormValue(fmt.Sprintf("id%d", i)),
+					Question: r.FormValue(fmt.Sprintf("question%d", i)),
+					Answer:   r.FormValue(fmt.Sprintf("answer%d", i))})
+		}
+
+	}
 
 	// 質問がある場合は DeepSeek API にリクエストを送信
 	if question != "" {
 		apiKey := os.Getenv("DEEPSEEK_API_KEY")
 		top.Qa.Question = question
 		top.Qa.Answer, top.Qa.Timestamp, top.Qa.Responsetime, err =
-			askDeepSeek(top.Qa, apiKey)
+			askDeepSeek(top.Qa, history, apiKey)
 		if err != nil {
 			err = fmt.Errorf("DeepSeek API error. err = %w", err)
 			log.Printf("%s\n", err.Error())
 			w.Write([]byte(err.Error()))
 			return
+		} else {
+			top.Qa.Question = ""
+		}
+
+		qbu := top.Qa.Question
+		top.Qa.Question += "\nwith ID:"
+		for i := 0; i < len(history); i++ {
+			if i != 0 {
+				top.Qa.Question += ", "
+			}
+			top.Qa.Question += history[i].Sid
 		}
 
 		err = srdblib.Dbmap.Insert(&top.Qa)
+		top.Qa.Question = qbu
 		if err != nil {
 			err = fmt.Errorf("Insert() Database error. err = %w", err)
 			log.Printf("%s\n", err.Error())
@@ -83,9 +123,17 @@ func HandlerDschat(
 
 	// データベースからデータを取得
 	offset := (page - 1) * pageSize
-	sqlst := fmt.Sprintf("SELECT * FROM qa_records ORDER BY id DESC LIMIT %d OFFSET %d", pageSize, offset)
 	var intf []interface{}
-	intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst)
+	sqlst := ""
+	if top.Target == "" {
+		sqlst = "SELECT * FROM qa_records ORDER BY id DESC LIMIT ? OFFSET ? "
+		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, pageSize, offset)
+	} else {
+		sqlst = "SELECT * FROM qa_records "
+		sqlst += " WHERE MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE) "
+		sqlst += " ORDER BY id DESC LIMIT ? OFFSET ? "
+		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, top.Target, pageSize, offset)
+	}
 	if err != nil {
 		err = fmt.Errorf("Select() Database error. err = %w", err)
 		log.Printf("%s\n", err.Error())
@@ -122,6 +170,7 @@ func HandlerDschat(
 
 	// テンプレートをパースして実行
 	funcMap := template.FuncMap{
+		"add":           func(a, b int) int { return a + b },
 		"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
 	}
 
