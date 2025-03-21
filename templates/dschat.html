@@ -4,22 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSeek Q&A</title>
+    <title>GenAI Q&A</title>
 </head>
 
 <body>
-    <h1>DeepSeek Q&A</h1>
+    <h1>GenAI Q&A</h1>
     <form id="askForm" action="/dschat" method="POST">
         {{ $t := .Stmp }}
-        {{ with .Qa }}
+        {{ $s := .SIselected }}
+        {{ $m := .Qa.Modelname }}
         <label for="modelname">Model:</label>
         <select name="modelname">
-            <option value="deepseek-chat" {{ if eq .Modelname "deepseek-chat" }}selected{{ end }}>deepseek-chat</option>
-            <option value="deepseek-code" {{ if eq .Modelname "deepseek-code" }}selected{{ end }}>deepseek-code</option>
-            <option value="deepseek-reasoner" {{ if eq .Modelname "deepseek-reasoner" }}selected{{ end }}>deepseek-reasoner</option>
-            <option value="claude-3-7-sonnet-20250219" {{ if eq .Modelname "claude-3-7-sonnet-20250219" }}selected{{ end
-                }}>claude-3-7-sonnet-20250219</option>
+            {{ range .Modellist }}
+            <option value="{{.}}" {{ if eq $m . }}selected{{ end }}>{{ . }}</option>
+            {{ end }}
         </select>
+
+        {{ with .Qa }}
         <label for="maxtokens">Max Tokens:</label>
         <select name="maxtokens">
             <option value="150" {{ if eq .Maxtokens 150 }}selected{{ end }}>150</option>
@@ -41,10 +42,25 @@
             <option value="0.6" {{ if eq $t "0.6" }}selected{{ end }}>0.6</option>
             <option value="0.7" {{ if eq $t "0.7" }}selected{{ end }}>0.7</option>
         </select>
-        <br><label for="system">前提:</label>
-        <textarea id="system" name='system' style='width: 50em;' rows='1' maxlength="1000">{{.System}}</textarea>
+
+        <br>
+        <label for="system">System Instruction:</label>
+        <input type="radio" id="systemA" name="system" value="none" {{ if eq $s "none" }}checked{{ end }}>
+        <label for="systemA">none</label>
+        <input type="radio" id="systemB" name="system" value="Go" {{ if eq $s "Go" }}checked{{ end }}>
+        <label for="systemB">Go</label>
+        <input type="radio" id="systemC" name="system" value="ESP32" {{ if eq $s "ESP32" }}checked{{ end }}>
+        <label for="systemC">ESP32</label>
+        <input type="radio" id="systemD" name="system" value="Arduino" {{ if eq $s "Arduino" }}checked{{ end }}>
+        <label for="systemD">Arduino</label>
+        <input type="radio" id="systemE" name="system" value="OPi" {{ if eq $s "OPi" }}checked{{ end }}>
+        <label for="systemD">OPi</label>
+        {{/*
+        <br><label for="system">編集:</label>
+        <textarea id="system" name='system' style='width: 50em;' rows='1'>{{.System}}</textarea>
+        */}}
         <br><label for="question">質問:</label>
-        <textarea id="question" name='question' style='width: 50em;' rows='1' maxlength="1000"></textarea>
+        <textarea id="question" name='question' style='width: 50em;' rows='1'></textarea>
         <br><button type="submit">送信</button>
         {{ end }}
         <hr>
@@ -53,12 +69,12 @@
         <hr>
         <div>
             {{ if .HasPrevious }}
-            <a
-                href="/dschat?page={{ .PreviousPage }}&modelname={{.Qa.Modelname}}&maxtokens={{.Qa.Maxtokens}}&temperature={{.Qa.Temperature}}&target={{.Target}}&system={{.Qa.System}}">前へ</a>
+            <!-- 前へボタン -->
+            <button type="submit" name="action" value="{{ .PreviousPage }}">前へ</button>
             {{ end }}
             {{ if .HasNext }}
-            <a
-                href="/dschat?page={{ .NextPage }}&modelname={{.Qa.Modelname}}&maxtokens={{.Qa.Maxtokens}}&temperature={{.Qa.Temperature}}&target={{.Target}}&system={{.Qa.System}}">次へ</a>
+            <!-- 次へボタン -->
+            <button type="submit" name="action" value="{{ .NextPage }}">次へ</button>
             {{ end }}
         </div>
 
@@ -71,13 +87,14 @@
                     <td><input type="hidden" name=id{{$i}} value="{{.Id}}"></td>
                     <td>
                         id={{ .Id }}&nbsp;&nbsp;
-                        modelname={{ .Modelname }}&nbsp;&nbsp;
+                        modelname=<span style="color: {{ colorOfModel .Modelname }};">{{ .Modelname }}</span>&nbsp;&nbsp;
                         maxtokens={{ .Maxtokens }}&nbsp;&nbsp;
-                        [{{ TimeToStringY .Timestamp }}&nbsp;({{ .Responsetime }}ms)]&nbsp;&nbsp;
+                        [{{ TimeToStringY .Timestamp }}&nbsp;({{ sprintfResponsetime "%5.1f" .Responsetime }}s)]&nbsp;&nbsp;
                     </td>
                 </tr>
                 <tr>
                     <td><input type="checkbox" id="checkbox{{$i}}" name="checkbox{{$i}}" style="margin-right: 10px;">
+                        <input type="hidden" name="modelname{{$i}}" value="{{.Modelname}}">
                     </td>
                     <td>
                         <textarea id="question{{$i}}" name='question{{$i}}' style='width: 50em;' rows='1'
@@ -97,11 +114,21 @@
         </div>
 
         <div>
+
+
             {{ if .HasPrevious }}
+            <!-- 前へボタン -->
+            <button type="submit" name="action" value="{{ .PreviousPage }}">前へ</button>
+            {{/*
             <a href="/dschat?page={{ .PreviousPage }}">前へ</a>
+            */}}
             {{ end }}
             {{ if .HasNext }}
+            <!-- 次へボタン -->
+            <button type="submit" name="action" value="{{ .NextPage }}">次へ</button>
+            {{/*
             <a href="/dschat?page={{ .NextPage }}">次へ</a>
+            */}}
             {{ end }}
         </div>
     </form>

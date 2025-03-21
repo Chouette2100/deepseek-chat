@@ -6,7 +6,6 @@ require (
 	github.com/Chouette2100/srapi/v2 v2.1.1
 	github.com/Chouette2100/srdblib/v2 v2.1.6
 	github.com/go-gorp/gorp v2.2.0+incompatible
-	github.com/joho/godotenv v1.5.1
 	golang.org/x/term v0.29.0
 )
 

@@ -8,38 +8,42 @@ import (
 
 	// "io/ioutil"
 	"io"
+	"log"
 	"net/http"
 )
 
-func askDeepSeek(
-	qa Qa_recordsDB,
+// func askDeepSeek(
+func AskDeepSeek(
+	qa *Qa_recordsDB,
 	history []qah,
+	url string, // APIエンドポイント
 	apiKey string,
 ) (
-	content string,
-	tstart time.Time,
-	responsetime int64,
 	err error,
 ) {
-	// APIエンドポイント
-	url := "https://api.deepseek.com/v1/chat/completions"
 
 	// リクエストボディ
 	var msgs []map[string]string
 
 	// Claudeで言うsystem、要するに大前提
 	if qa.System != "" {
-		msgs = append(msgs, map[string]string{"role": "user", "content": qa.System})
+		msgs = append(msgs, map[string]string{"role": "system", "content": qa.System})
 	}
 
 	// Q&Aの履歴を追加
 	for i := 0; i < len(history); i++ {
-		msgs = append(msgs, map[string]string{"role": "user", "content": history[i].Question})
-		msgs = append(msgs, map[string]string{"role": "assistant", "content": history[i].Answer})
+		whotoldme := ""
+		whodiditell := ""
+		if history[i].Model != qa.Modelname {
+			whotoldme = history[i].Model + " は答えました:\n"
+			whodiditell = history[i].Model + " に聞きました:\n"
+		}
+		msgs = append(msgs, map[string]string{"role": "user", "content": whodiditell + history[i].Question})
+		msgs = append(msgs, map[string]string{"role": "assistant", "content": whotoldme + history[i].Answer})
 	}
 
 	// ユーザーの質問を追加
-		msgs = append(msgs, map[string]string{"role": "user", "content": qa.Question})
+	msgs = append(msgs, map[string]string{"role": "user", "content": qa.Question})
 
 	payload := map[string]interface{}{
 		// "model": "deepseek-chat", // 使用するモデルを指定
@@ -65,6 +69,8 @@ func askDeepSeek(
 		return
 	}
 
+	// printJSON(jsonData)
+
 	// HTTPリクエストを作成
 	var req *http.Request
 	req, err = http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
@@ -78,7 +84,7 @@ func askDeepSeek(
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
 	// リクエストを送信
-	tstart = time.Now()
+	qa.Timestamp = time.Now()
 	client := &http.Client{}
 	var resp *http.Response
 	resp, err = client.Do(req)
@@ -92,13 +98,25 @@ func askDeepSeek(
 	// body, err := ioutil.ReadAll(resp.Body)
 	var body []byte
 	body, err = io.ReadAll(resp.Body)
-	// body, err := os.ReadAll(resp.Body)
 	if err != nil {
 		err = fmt.Errorf("error reading response body: %v", err)
 		return
 	}
-	tend := time.Now()
-	responsetime = tend.Sub(tstart).Milliseconds()
+	qa.Responsetime = time.Since(qa.Timestamp).Milliseconds()
+
+	printJSON(body)
+
+	res := OpenaiResponse{}
+	if err = json.Unmarshal(body, &res); err != nil {
+		// err = fmt.Errorf("error unmarshalling response: %v", err)
+		log.Printf("error unmarshalling response: %v", err)
+		// return
+	}
+	// log.Printf("%+v\n", res)
+	log.Printf(" answer=%s\n", res.Choices[0].Message.Content)
+	// qa.Answer = res.Choices[0].Message.Content
+	qa.Itokens = res.Usage.PromptTokens
+	qa.Otokens = res.Usage.CompletionTokens
 
 	// レスポンスをパース
 	var result map[string]interface{}
@@ -111,7 +129,7 @@ func askDeepSeek(
 	if choices, ok := result["choices"].([]interface{}); ok && len(choices) > 0 {
 		if choice, ok := choices[0].(map[string]interface{}); ok {
 			if message, ok := choice["message"].(map[string]interface{}); ok {
-				if content, ok = message["content"].(string); ok {
+				if qa.Answer, ok = message["content"].(string); ok {
 					return
 				}
 			}
@@ -119,5 +137,7 @@ func askDeepSeek(
 	}
 
 	err = fmt.Errorf("invalid response format")
+	log.Printf("%s", err)
+
 	return
 }
