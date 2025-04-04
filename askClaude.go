@@ -134,6 +134,8 @@ func askClaude(
 		return
 	}
 	qa.Responsetime = time.Since(qa.Timestamp).Milliseconds()
+	log.Printf("レスポンス時間: %d ms\n", qa.Responsetime)
+	printJSON(body)
 
 	// ステータスコードの確認
 	if resp.StatusCode != http.StatusOK {
@@ -142,15 +144,17 @@ func askClaude(
 		if err = json.Unmarshal(body, &claudeError); err == nil {
 			err = fmt.Errorf("json.Unmarshal(): API エラー: %s - %s", claudeError.Type, claudeError.Message)
 			log.Printf("%s", err)
+			printJSON(jsonData)
 			return
 		} else {
 			err = fmt.Errorf("json.Unmarshal(): API エラー: ステータスコード %d, レスポンス: %s", resp.StatusCode, string(body))
 			log.Printf("%s", err)
+			printJSON(jsonData)
 			return
 		}
 	}
 
-	printJSON(body)
+	// printJSON(body)
 
 	// 成功レスポンスの解析
 	var claudeResponse ClaudeResponse

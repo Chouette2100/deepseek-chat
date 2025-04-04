@@ -1,0 +1,25 @@
+# すでに存在するトンネルを使う
+#UseSSH: false
+#DBサーバーのホスト名、指定しなければlocalhost
+
+# SSHトンネルを使う場合はDBhostをlocalhostとしないこと！
+#DBhost: 127.0.0.1
+#DBport: 9999
+
+# データベース名
+DBname:	${DBNAME}
+
+# ログイン名とパスワードは環境変数で渡す
+DBuser:	${DBUSER}
+DBpswd:	${DBPW}
+
+# SSH接続を使わない
+UseSSH: false
+
+# SSH接続を使う
+#UseSSH: true
+SSHhost: ${SSHHOST}
+SSHport: ${SSHPORT}
+SSHuser: ${SSHUSER}
+#SSHpswd: ${SSHPSWD}
+SSHprvkey: ${SSHKEY}

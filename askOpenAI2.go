@@ -13,67 +13,15 @@ import (
 )
 
 // リクエスト構造体
-type OpenaiRequest struct {
-	Model       string          `json:"model"`
-	Messages    []OpenaiMessage `json:"messages"`
-	MaxTokens   int             `json:"max_tokens"`
-	Temperature float64         `json:"temperature,omitempty"`
-}
-type OpenaiMessage struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
-
-// レスポンス構造体
-type OpenaiResponse struct {
-	ID                string      `json:"id"`
-	Object            string      `json:"object"`
-	Created           int64       `json:"created"` // UNIXタイムスタンプは int64 中にした方が無難
-	Model             string      `json:"model"`
-	Choices           []Choice    `json:"choices"`
-	Usage             OaiResUsage `json:"usage"`
-	ServiceTier       string      `json:"service_tier"`
-	SystemFingerprint string      `json:"system_fingerprint"`
-	ErrorMsg          string      `json:"error_msg"`
-}
-
-type Choice struct {
-	Index        int           `json:"index"`
-	Message      OaiResMessage `json:"message"`
-	Logprobs     interface{}   `json:"logprobs"` // 具体的な型が分かる場合は指定
-	FinishReason string        `json:"finish_reason"`
-}
-
-type OaiResMessage struct {
-	Role        string        `json:"role"`
-	Content     string        `json:"content"`
-	Refusal     interface{}   `json:"refusal"`     // 具体的な型が分かる場合は指定
-	Annotations []interface{} `json:"annotations"` // 具体的な型が分かる場合は指定
-}
-
-type OaiResUsage struct {
-	PromptTokens            int                     `json:"prompt_tokens"`
-	CompletionTokens        int                     `json:"completion_tokens"`
-	TotalTokens             int                     `json:"total_tokens"`
-	PromptTokensDetails     PromptTokensDetails     `json:"prompt_tokens_details"`
-	CompletionTokensDetails CompletionTokensDetails `json:"completion_tokens_details"`
-}
-
-type PromptTokensDetails struct {
-	CachedTokens int `json:"cached_tokens"`
-	AudioTokens  int `json:"audio_tokens"`
-}
-
-type CompletionTokensDetails struct {
-	ReasoningTokens          int `json:"reasoning_tokens"`
-	AudioTokens              int `json:"audio_tokens"`
-	AcceptedPredictionTokens int `json:"accepted_prediction_tokens"`
-	RejectedPredictionTokens int `json:"rejected_prediction_tokens"`
+type Openai2Request struct {
+	Model               string          `json:"model"`
+	Messages            []OpenaiMessage `json:"messages"`
+	MaxCompletionTokens int             `json:"max_completion_tokens"`
 }
 
 // const apiURL = "https://api.openai.com/v1/chat/completions"
 
-func askOpenAI(
+func askOpenAI2(
 	qa *Qa_recordsDB,
 	history []qah,
 	url string, // APIエンドポイント
@@ -105,11 +53,10 @@ func askOpenAI(
 	msgs = append(msgs, OpenaiMessage{Role: "user", Content: qa.Question})
 
 	// リクエストの作成
-	request := OpenaiRequest{
+	request := Openai2Request{
 		Model:       qa.Modelname,
 		Messages:    msgs,
-		MaxTokens:   qa.Maxtokens,
-		Temperature: qa.Temperature,
+		MaxCompletionTokens:   qa.Maxtokens,
 	}
 
 	// JSONに変換

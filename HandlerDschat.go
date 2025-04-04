@@ -32,6 +32,7 @@ type Modeltype struct {
 }
 
 var systemlist map[string]string = map[string]string{
+	// "none":    "あなたはコンテナ技術のエキスパート。現在 LinuxMint21.3を使っています。仮想環境はQEMU/KVMですが、より軽量なLXDに興味があります。LXD Ver.5.21.3 LTS と `images:mint/virginia/amd64 mint213LA` を使ってLXDコンテナを作りxfce4をインストールし、VNCで接続しています。SPICEがいいのですが、まだできていません。",
 	"none":    "",
 	"Go":      "あなたはGoのエクスパート。環境はLinuxMint21.3、Go1.23.1、net/http＋go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはあんまり使いたくない、かんたんなものは別として複雑なもの処理量の多いものはgoのWebAssemblyで済ませたい。",
 	"ESP32":   "あなたは ESP32 のエキスパート。開発にはArduinoIDEを使っています。",
@@ -49,20 +50,21 @@ var venderlist map[string]Venderinf = map[string]Venderinf{
 	"Goodle":    {EvAPI: "GOOGLE_API_KEY", Url: "https://generativelanguage.googleapis.com/v1beta/models/"},
 	"Anthropic": {EvAPI: "CLAUDE_API_KEY", Url: "https://api.anthropic.com/v1/messages"},
 	// "DeepSeek":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com"},
-	// "DeepSeek":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1"},
-	"DeepSeek":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1/chat/completions"},
-	"OpenAI":    {EvAPI: "OPENAI_API_KEY", Url: "https://api.openai.com/v1/chat/completions"},
+	// "DeepSeek2":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1"},
+	"DeepSeek": {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1/chat/completions"},
+	"OpenAI":   {EvAPI: "OPENAI_API_KEY", Url: "https://api.openai.com/v1/chat/completions"},
 }
 
 var modellist map[string]Modeltype = map[string]Modeltype{
 	"gemini-2.0-flash":           {Model: "gemini", Vendor: "Goodle"},
 	"claude-3-7-sonnet-20250219": {Model: "claude", Vendor: "Anthropic"},
 	"claude-3-5-haiku-20241022":  {Model: "claude", Vendor: "Anthropic"},
-	"deepseek-chat":              {Model: "deepseek", Vendor: "DeepSeek"},
-	"deepseek-code":              {Model: "deepseek", Vendor: "DeepSeek"},
-	"deepseek-reasoner":          {Model: "deepseek", Vendor: "DeepSeek"},
+	"deepseek-chat":              {Model: "openai", Vendor: "DeepSeek"},
+	"deepseek-code":              {Model: "openai", Vendor: "DeepSeek"},
+	"deepseek-reasoner":          {Model: "openai", Vendor: "DeepSeek"},
 	"gpt-4o-mini-2024-07-18":     {Model: "openai", Vendor: "OpenAI"},
-	"o3-mini-2025-01-31":         {Model: "openai", Vendor: "OpenAI"},
+	"o3-mini-2025-01-31":         {Model: "openai2", Vendor: "OpenAI"},
+	"gpt-4o-2024-08-06":          {Model: "openai", Vendor: "OpenAI"},
 }
 
 func HandlerDschat(
@@ -95,7 +97,7 @@ func HandlerDschat(
 	*/
 
 	// 1 ページあたりのレコード数
-	const pageSize = 10
+	const pageSize = 20
 
 	history = make([]qah, 0)
 
@@ -176,6 +178,8 @@ func HandlerDschat(
 			err = askGemini(&top.Qa, history, url, apiKey)
 		case "openai":
 			err = askOpenAI(&top.Qa, history, url, apiKey)
+		case "openai2":
+			err = askOpenAI2(&top.Qa, history, url, apiKey)
 		default:
 			err = fmt.Errorf("invalid modelname: %s", top.Qa.Modelname)
 			log.Printf("%s\n", err.Error())
@@ -264,10 +268,10 @@ func HandlerDschat(
 
 	// テンプレートをパースして実行
 	funcMap := template.FuncMap{
-		"add":           func(a, b int) int { return a + b },
-		"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
-		"sprintfResponsetime":       func(format string, n int64) string { return fmt.Sprintf(format, float32(n)/1000.0) },
-		"colorOfModel":			  func(model string) template.CSS {
+		"add":                 func(a, b int) int { return a + b },
+		"TimeToStringY":       func(t time.Time) string { return t.Format("06-01-02 15:04") },
+		"sprintfResponsetime": func(format string, n int64) string { return fmt.Sprintf(format, float32(n)/1000.0) },
+		"colorOfModel": func(model string) template.CSS {
 			if strings.Contains(model, "gemini") {
 				// return "darkblue"
 				return template.CSS("hsl(0,100%,50%)")
@@ -281,7 +285,7 @@ func HandlerDschat(
 				return template.CSS("hsl(180, 100%, 30%)")
 			}
 			// return "tomato"
-				return template.CSS("hsl(270, 100%, 50%)")
+			return template.CSS("hsl(270, 100%, 50%)")
 		},
 	}
 

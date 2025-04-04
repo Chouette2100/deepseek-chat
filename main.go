@@ -19,9 +19,10 @@ import (
 /*
 000300  前提と必要な履歴の送信機能を作成する
 000400  deepseek, claude, gemini, openaiのAPIを使う機能を作成する
+000500  "o3-mini-2025-01-31"ではmax_tokensが使えないので、max_completion_tokensに変更
 */
 
-const version = "000400"
+const version = "000500"
 
 type CustomTime time.Time
 
