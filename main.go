@@ -20,9 +20,11 @@ import (
 000300  前提と必要な履歴の送信機能を作成する
 000400  deepseek, claude, gemini, openaiのAPIを使う機能を作成する
 000500  "o3-mini-2025-01-31"ではmax_tokensが使えないので、max_completion_tokensに変更
+000600  JWT認証を追懐する（Github Copilot(GPT-4o)による
+
 */
 
-const version = "000500"
+const version = "000600"
 
 type CustomTime time.Time
 
@@ -90,7 +92,12 @@ func main() {
 	}
 	defer srdblib.Db.Close()
 
-	http.HandleFunc("/dschat", HandlerDschat)
+	http.HandleFunc("/dschat", ValidateJWT(HandlerDschat))
+	http.HandleFunc("/signup", SignupHandler)
+	http.HandleFunc("/verify", VerifyCodeHandler)
+	http.HandleFunc("/login", LoginHandler)
+	http.HandleFunc("/", HandlerDschat)
+
 
 	sport := os.Getenv("SPORT")
 	if sport == "" {

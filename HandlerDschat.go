@@ -8,13 +8,16 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"math/rand"
 	"net/http"
-	// "os"
+	// "net/smtp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Chouette2100/srdblib/v2"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type qah struct {
@@ -32,7 +35,6 @@ type Modeltype struct {
 }
 
 var systemlist map[string]string = map[string]string{
-	// "none":    "あなたはコンテナ技術のエキスパート。現在 LinuxMint21.3を使っています。仮想環境はQEMU/KVMですが、より軽量なLXDに興味があります。LXD Ver.5.21.3 LTS と `images:mint/virginia/amd64 mint213LA` を使ってLXDコンテナを作りxfce4をインストールし、VNCで接続しています。SPICEがいいのですが、まだできていません。",
 	"none":    "",
 	"Go":      "あなたはGoのエクスパート。環境はLinuxMint21.3、Go1.23.1、net/http＋go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはあんまり使いたくない、かんたんなものは別として複雑なもの処理量の多いものはgoのWebAssemblyで済ませたい。",
 	"ESP32":   "あなたは ESP32 のエキスパート。開発にはArduinoIDEを使っています。",
@@ -49,10 +51,8 @@ type Venderinf struct {
 var venderlist map[string]Venderinf = map[string]Venderinf{
 	"Goodle":    {EvAPI: "GOOGLE_API_KEY", Url: "https://generativelanguage.googleapis.com/v1beta/models/"},
 	"Anthropic": {EvAPI: "CLAUDE_API_KEY", Url: "https://api.anthropic.com/v1/messages"},
-	// "DeepSeek":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com"},
-	// "DeepSeek2":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1"},
-	"DeepSeek": {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1/chat/completions"},
-	"OpenAI":   {EvAPI: "OPENAI_API_KEY", Url: "https://api.openai.com/v1/chat/completions"},
+	"DeepSeek":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1/chat/completions"},
+	"OpenAI":    {EvAPI: "OPENAI_API_KEY", Url: "https://api.openai.com/v1/chat/completions"},
 }
 
 var modellist map[string]Modeltype = map[string]Modeltype{
@@ -67,44 +67,144 @@ var modellist map[string]Modeltype = map[string]Modeltype{
 	"gpt-4o-2024-08-06":          {Model: "openai", Vendor: "OpenAI"},
 }
 
+var jwtKey = []byte("your_secret_key")
+var verificationCodes = sync.Map{} // To store email verification codes temporarily
+
+// GenerateJWT generates a JWT token for a given email
+func GenerateJWT(email string) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claims := &jwt.RegisteredClaims{
+		Subject:   email,
+		ExpiresAt: jwt.NewNumericDate(expirationTime),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtKey)
+}
+
+// Middleware to validate JWT
+func ValidateJWT(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// tokenStr := r.Header.Get("Authorization")
+		// CookieからJWTを取得
+		cookie, err := r.Cookie("jwt_token")
+		// if err != nil {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
+
+		tokenStr := ""
+		if err == nil || cookie != nil {
+			// cookieの値を取得
+			tokenStr = cookie.Value
+		}
+		if tokenStr == "" {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		claims := &jwt.RegisteredClaims{}
+		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+		if err != nil || !token.Valid {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		next(w, r)
+	}
+}
+
+// SendVerificationCode sends a 6-digit code to the user's email
+func SendVerificationCode(email string) (string, error) {
+	code := fmt.Sprintf("%06d", rand.Intn(1000000))
+	verificationCodes.Store(email, code)
+	log.Printf("Verification code for %s: %s\n", email, code)
+	// Simulate email sending (replace with actual SMTP logic)
+	/*
+		err := smtp.SendMail("smtp.example.com:587",
+			smtp.PlainAuth("", "your_email@example.com", "your_password", "smtp.example.com"),
+			"your_email@example.com", []string{email},
+			[]byte("Subject: Verification Code\n\nYour code is: "+code))
+		return code, err
+	*/
+	return code, nil
+}
+
+// SignupHandler handles user signup
+func SignupHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		email := r.FormValue("email")
+		_, err := SendVerificationCode(email) // Removed unused variable `code`
+		if err != nil {
+			http.Error(w, "Failed to send verification code", http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintf(w, "Verification code sent to %s", email)
+		return
+	}
+	http.ServeFile(w, r, "templates/signup.html")
+}
+
+// VerifyCodeHandler verifies the code and allows password setup
+func VerifyCodeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		// if r.Method == http.MethodGet {
+		email := r.FormValue("email")
+		code := r.FormValue("code")
+		storedCode, ok := verificationCodes.Load(email)
+		if !ok || storedCode != code {
+			http.Error(w, "Invalid code", http.StatusUnauthorized)
+			return
+		}
+		verificationCodes.Delete(email)
+		http.ServeFile(w, r, "templates/set_password.html")
+		return
+	}
+	http.Error(w, "Invalid request", http.StatusBadRequest)
+}
+
+// LoginHandler handles user login
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+		// Validate email and password with database (pseudo-code)
+		// if email == "test@example.com" && password == "password" {
+		if email == "iapetus@seppina.com" && password == "sfbsfbsfb78" {
+			token, err := GenerateJWT(email)
+			if err != nil {
+				http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+				return
+			}
+			http.SetCookie(w, &http.Cookie{
+				// Name:    "token",
+				Name:    "jwt_token",
+				Value:   token,
+				Expires: time.Now().Add(24 * time.Hour),
+				// 以下追加(deepseek-chat)
+				HttpOnly: true,  // JavaScriptからアクセス不可
+				Secure:   true,  // HTTPSのみ
+				SameSite: http.SameSiteStrictMode,
+				Path:     "/",
+			})
+			// http.Redirect(w, r, "/", http.StatusSeeOther)
+			http.Redirect(w, r, "/dschat", http.StatusSeeOther)
+			return
+		}
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+	http.ServeFile(w, r, "templates/login.html")
+}
+
 func HandlerDschat(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	/*
-		    // リクエストメソッドを確認
-			fmt.Println("Method:", r.Method)
-
-			// 明示的にParseFormを呼び出す
-			err := r.ParseForm()
-			if err != nil {
-				fmt.Println("ParseForm error:", err)
-				http.Error(w, "フォーム解析エラー", http.StatusBadRequest)
-				return
-			}
-
-			// すべてのフォームデータをダンプ
-			fmt.Println("Form data:", r.Form)
-
-			// actionの値を取得
-			action := r.FormValue("action")
-			fmt.Println("Action value:", action)
-
-			// POSTデータのみを確認
-			fmt.Println("PostForm data:", r.PostForm)
-
-			// 以下、通常の処理
-	*/
-
-	// 1 ページあたりのレコード数
 	const pageSize = 20
 
 	history = make([]qah, 0)
 
-	// ページ番号を取得 (デフォルトは 1)
 	pageStr := r.FormValue("action")
-	// pageStr := action
-	// pageStr := r.URL.Query().Get("action")
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
 		page = 1
@@ -114,8 +214,8 @@ func HandlerDschat(
 		Qa           Qa_recordsDB
 		Qalist       []Qa_recordsDB
 		SIselected   string
-		Modellist    []string // AIモデル名のリスト
-		Target       string   // 全文検索キーワード
+		Modellist    []string
+		Target       string
 		HasNext      bool
 		HasPrevious  bool
 		NextPage     int
@@ -127,7 +227,6 @@ func HandlerDschat(
 		top.Modellist = append(top.Modellist, k)
 	}
 
-	// フォームデータの処理
 	top.SIselected = r.FormValue("system")
 	if top.SIselected == "" {
 		top.SIselected = "Go"
@@ -163,7 +262,6 @@ func HandlerDschat(
 
 	}
 
-	// 質問がある場合は質問のリクエストを送信
 	if question != "" {
 		top.Qa.Question = question
 		apiKey := venderlist[modellist[top.Qa.Modelname].Vendor].Apikey
@@ -210,10 +308,8 @@ func HandlerDschat(
 			w.Write([]byte(err.Error()))
 			return
 		}
-		// log.Printf("qadb=%+v\n", top.Qa)
 	}
 
-	// データベースからデータを取得
 	offset := (page - 1) * pageSize
 	var intf []interface{}
 	sqlst := ""
@@ -238,13 +334,11 @@ func HandlerDschat(
 		top.Qalist = append(top.Qalist, *v.(*Qa_recordsDB))
 	}
 
-	// 「次へ」と「前へ」ボタンの表示を制御
 	if page > 1 {
 		top.HasPrevious = true
 		top.PreviousPage = page - 1
 	}
 
-	// 総レコード数を取得
 	var totalRecords int64
 	if top.Target == "" {
 		err = srdblib.Dbmap.SelectOne(&totalRecords, "SELECT COUNT(*) FROM qa_records")
@@ -260,31 +354,25 @@ func HandlerDschat(
 		return
 	}
 
-	// 「次へ」ボタンを表示するかどうかを判定
 	if offset+pageSize < int(totalRecords) {
 		top.HasNext = true
 		top.NextPage = page + 1
 	}
 
-	// テンプレートをパースして実行
 	funcMap := template.FuncMap{
 		"add":                 func(a, b int) int { return a + b },
 		"TimeToStringY":       func(t time.Time) string { return t.Format("06-01-02 15:04") },
 		"sprintfResponsetime": func(format string, n int64) string { return fmt.Sprintf(format, float32(n)/1000.0) },
 		"colorOfModel": func(model string) template.CSS {
 			if strings.Contains(model, "gemini") {
-				// return "darkblue"
 				return template.CSS("hsl(0,100%,50%)")
 			}
 			if strings.Contains(model, "claude") {
-				// return "magenta"
 				return template.CSS("hsl(90, 100%, 20%)")
 			}
 			if strings.Contains(model, "deepseek") {
-				// return "darkgreen"
 				return template.CSS("hsl(180, 100%, 30%)")
 			}
-			// return "tomato"
 			return template.CSS("hsl(270, 100%, 50%)")
 		},
 	}
@@ -297,3 +385,13 @@ func HandlerDschat(
 		w.Write([]byte(err.Error()))
 	}
 }
+
+/*
+func main() {
+	http.HandleFunc("/dschat", ValidateJWT(HandlerDschat))
+	http.HandleFunc("/signup", SignupHandler)
+	http.HandleFunc("/verify", VerifyCodeHandler)
+	http.HandleFunc("/login", LoginHandler)
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+*/
