@@ -36,7 +36,7 @@ type Modeltype struct {
 
 var systemlist map[string]string = map[string]string{
 	"none":    "",
-	"Go":      "あなたはGoのエクスパート。環境はLinuxMint21.3、Go1.23.1、net/http＋go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはあんまり使いたくない、かんたんなものは別として複雑なもの処理量の多いものはgoのWebAssemblyで済ませたい。",
+	"Go":      "あなたはGoのエクスパート。環境はLinuxMint21.3、Go1.23.1、net/http＋go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはかんたんなものに使って、複雑なもの処理量の多いものはgoのWebAssemblyにしたい。",
 	"ESP32":   "あなたは ESP32 のエキスパート。開発にはArduinoIDEを使っています。",
 	"Arduino": "あなたは Arduino のエキスパート。開発にはArduinoIDEを使っています。",
 	"OPi":     "あなたは Orange Pi Zero 3のエキスパート。OSはUbuntu系で開発にはGo 1.23.1 + Cgo + WiringOP を使っています。",
@@ -56,15 +56,17 @@ var venderlist map[string]Venderinf = map[string]Venderinf{
 }
 
 var modellist map[string]Modeltype = map[string]Modeltype{
-	"gemini-2.0-flash":           {Model: "gemini", Vendor: "Goodle"},
-	"claude-3-7-sonnet-20250219": {Model: "claude", Vendor: "Anthropic"},
-	"claude-3-5-haiku-20241022":  {Model: "claude", Vendor: "Anthropic"},
-	"deepseek-chat":              {Model: "openai", Vendor: "DeepSeek"},
-	"deepseek-code":              {Model: "openai", Vendor: "DeepSeek"},
-	"deepseek-reasoner":          {Model: "openai", Vendor: "DeepSeek"},
-	"gpt-4o-mini-2024-07-18":     {Model: "openai", Vendor: "OpenAI"},
-	"o3-mini-2025-01-31":         {Model: "openai2", Vendor: "OpenAI"},
-	"gpt-4o-2024-08-06":          {Model: "openai", Vendor: "OpenAI"},
+	"gemini-2.0-flash":               {Model: "gemini", Vendor: "Goodle"},
+	"gemini-2.5-flash-preview-04-17": {Model: "gemini", Vendor: "Goodle"},
+	"gemini-2.5-pro-preview-05-06":   {Model: "gemini", Vendor: "Goodle"},
+	"claude-3-7-sonnet-20250219":     {Model: "claude", Vendor: "Anthropic"},
+	"claude-3-5-haiku-20241022":      {Model: "claude", Vendor: "Anthropic"},
+	"deepseek-chat":                  {Model: "openai", Vendor: "DeepSeek"},
+	"deepseek-code":                  {Model: "openai", Vendor: "DeepSeek"},
+	"deepseek-reasoner":              {Model: "openai", Vendor: "DeepSeek"},
+	"gpt-4o-mini-2024-07-18":         {Model: "openai", Vendor: "OpenAI"},
+	"o3-mini-2025-01-31":             {Model: "openai2", Vendor: "OpenAI"},
+	"gpt-4o-2024-08-06":              {Model: "openai", Vendor: "OpenAI"},
 }
 
 var jwtKey = []byte("your_secret_key")
@@ -181,8 +183,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 				Value:   token,
 				Expires: time.Now().Add(24 * time.Hour),
 				// 以下追加(deepseek-chat)
-				HttpOnly: true,  // JavaScriptからアクセス不可
-				Secure:   true,  // HTTPSのみ
+				HttpOnly: true, // JavaScriptからアクセス不可
+				Secure:   true, // HTTPSのみ
 				SameSite: http.SameSiteStrictMode,
 				Path:     "/",
 			})

@@ -211,7 +211,16 @@ func askGemini(
 	candidates := result["candidates"].([]interface{})
 	content := candidates[0].(map[string]interface{})["content"].(map[string]interface{})
 	parts := content["parts"].([]interface{})
-	text := parts[0].(map[string]interface{})["text"].(string)
+	log.Printf("parts=%+v\n", parts)
+	text := ""
+	for _, part := range parts {
+		if partMap, ok := part.(map[string]interface{}); ok {
+			if textPart, ok := partMap["text"].(string); ok {
+				text += textPart
+			}
+		}
+	}
+	// text := parts[0].(map[string]interface{})["text"].(string)
 	fmt.Println("Text:", text)
 	qa.Answer = text
 
