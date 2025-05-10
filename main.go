@@ -23,9 +23,10 @@ import (
 000600  JWT認証を追加する（Github Copilot(GPT-4o)による
 000700  モデルとして gemini-2.5-pro-preview-05-06 及び gemini-2.5-flash-preview-04-17 を追加する。
 000800  gemini の場合、レスポンスのpartsの配列のすべてを取得する。
+000801  HandlerDschat()でのQa.MaxtokensとQa.Modelnameの初期値を20000とgemini-2.5-flash-preview-04-17に変更する。
 */
 
-const version = "000800"
+const version = "000801"
 
 type CustomTime time.Time
 

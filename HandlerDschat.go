@@ -237,12 +237,12 @@ func HandlerDschat(
 	question := r.FormValue("question")
 	top.Qa.Modelname = r.FormValue("modelname")
 	if top.Qa.Modelname == "" {
-		top.Qa.Modelname = "deepseek-chat"
+		top.Qa.Modelname = "gemini-2.5-flash-preview-04-17"
 	}
 	dsmt := r.FormValue("maxtokens")
 	top.Qa.Maxtokens, _ = strconv.Atoi(dsmt)
 	if top.Qa.Maxtokens == 0 {
-		top.Qa.Maxtokens = 2000
+		top.Qa.Maxtokens = 20000
 	}
 	top.Stmp = r.FormValue("temperature")
 	if top.Stmp == "" {
