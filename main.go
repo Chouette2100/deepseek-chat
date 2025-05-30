@@ -13,6 +13,7 @@ import (
 	// "github.com/gin-gonic/gin"
 	// "github.com/joho/godotenv"
 
+	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
 
@@ -24,9 +25,10 @@ import (
 000700  モデルとして gemini-2.5-pro-preview-05-06 及び gemini-2.5-flash-preview-04-17 を追加する。
 000800  gemini の場合、レスポンスのpartsの配列のすべてを取得する。
 000801  HandlerDschat()でのQa.MaxtokensとQa.Modelnameの初期値を20000とgemini-2.5-flash-preview-04-17に変更する。
+000901  Webサーバーの構成をServerConfig.ymlから読み込むようにする。
 */
 
-const version = "000801"
+const version = "000901"
 
 type CustomTime time.Time
 
@@ -77,6 +79,13 @@ func main() {
 	//		http.ListenAndServe("localhost:6060", nil)
 	//	}()
 
+	// サーバー構成
+	type ServerConfig struct {
+		HTTPport string `yaml:"HTTPport"`
+		SSLcrt   string `yaml:"SSLcrt"`
+		SSLkey   string `yaml:"SSLkey"`
+	}
+
 	var err error
 
 	// ログファイルを作成
@@ -86,6 +95,14 @@ func main() {
 		fmt.Println("Error creating logfile")
 	}
 	defer pfile.Close()
+
+	svconfig := &ServerConfig{}
+	err = exsrapi.LoadConfig("ServerConfig.yml", svconfig)
+	if err != nil {
+		log.Printf("err=%s.\n", err.Error())
+		os.Exit(1)
+	}
+	log.Printf("%+v\n", svconfig)
 
 	// データベース接続
 	err = SetupDB()
@@ -100,13 +117,8 @@ func main() {
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/", HandlerDschat)
 
-	sport := os.Getenv("SPORT")
-	if sport == "" {
-		sport = "8082"
-	}
-
 	// err = http.ListenAndServe(":"+sport, nil)
-	err = http.ListenAndServeTLS(":"+sport, "/home/chouette/.ssh/cert.pem", "/home/chouette/.ssh/key.pem", nil)
+	err = http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
 	if err != nil {
 		log.Printf("ListenAndServe() error. err = %v\n", err)
 	}

@@ -1,0 +1,13 @@
+# WebServerの設定ファイル
+# WebServerの待ち受けポート番号を指定する。
+#
+# WebServerの待受けポート番号
+HTTPport: ${HTTPPORT}
+#
+#
+# SSLに関する設定は環境変数で渡す。
+## SSL証明書関連のファイルはふつうrootしか参照できない形でおかれているので
+## その対策が必要です。
+## 今は~/.letsencrypt にコピーしてきて使っていますが...
+SSLcrt: ${SSLCRT}
+SSLkey: ${SSLKEY}
