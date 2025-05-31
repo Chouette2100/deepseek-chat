@@ -191,6 +191,7 @@ func askGemini(
 	if err != nil {
 		// fmt.Println("JSONデコードエラー:", err)
 		err = fmt.Errorf("JSONデコードエラー: %w", err)
+		printJSON(body)
 		return
 	}
 

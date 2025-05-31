@@ -26,9 +26,11 @@ import (
 000800  gemini の場合、レスポンスのpartsの配列のすべてを取得する。
 000801  HandlerDschat()でのQa.MaxtokensとQa.Modelnameの初期値を20000とgemini-2.5-flash-preview-04-17に変更する。
 000901  Webサーバーの構成をServerConfig.ymlから読み込むようにする。
+000902  デバッグライトを追加する
+000903  "/"に対するハンドラをHandlerDschatからValidateJWT(HandlerDschat)に変更する。
 */
 
-const version = "000901"
+const version = "000903"
 
 type CustomTime time.Time
 
@@ -115,7 +117,7 @@ func main() {
 	http.HandleFunc("/signup", SignupHandler)
 	http.HandleFunc("/verify", VerifyCodeHandler)
 	http.HandleFunc("/login", LoginHandler)
-	http.HandleFunc("/", HandlerDschat)
+	http.HandleFunc("/", ValidateJWT(HandlerDschat))
 
 	// err = http.ListenAndServe(":"+sport, nil)
 	err = http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
