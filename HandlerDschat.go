@@ -59,6 +59,7 @@ var modellist map[string]Modeltype = map[string]Modeltype{
 	"gemini-2.0-flash":               {Model: "gemini", Vendor: "Goodle"},
 	"gemini-2.5-flash-preview-04-17": {Model: "gemini", Vendor: "Goodle"},
 	"gemini-2.5-pro-preview-05-06":   {Model: "gemini", Vendor: "Goodle"},
+	"claude-sonnet-4-20250514":       {Model: "claude", Vendor: "Anthropic"},
 	"claude-3-7-sonnet-20250219":     {Model: "claude", Vendor: "Anthropic"},
 	"claude-3-5-haiku-20241022":      {Model: "claude", Vendor: "Anthropic"},
 	"deepseek-chat":                  {Model: "openai", Vendor: "DeepSeek"},

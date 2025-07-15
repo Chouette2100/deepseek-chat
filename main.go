@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	// _ "net/http/pprof"
 	"os"
 	// "strconv"
@@ -28,9 +29,10 @@ import (
 000901  Webサーバーの構成をServerConfig.ymlから読み込むようにする。
 000902  デバッグライトを追加する
 000903  "/"に対するハンドラをHandlerDschatからValidateJWT(HandlerDschat)に変更する。
+000904  claude-sonnet-4-20250514 を追加する。
 */
 
-const version = "000903"
+const version = "000904"
 
 type CustomTime time.Time
 
