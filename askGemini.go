@@ -66,6 +66,8 @@ type GmnResUsageMetadata struct {
 	CandidatesTokensDetails []GmnResCandidatesTokensDetails `json:"candidatesTokensDetails"`
 }
 
+// Geminiに聞く！
+// 参考 https://ai.google.dev/gemini-api/docs/quickstart?hl=ja#go
 func askGemini(
 	qa *Qa_recordsDB,
 	history []qah,

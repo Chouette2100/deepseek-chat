@@ -30,9 +30,13 @@ import (
 000902  デバッグライトを追加する
 000903  "/"に対するハンドラをHandlerDschatからValidateJWT(HandlerDschat)に変更する。
 000904  claude-sonnet-4-20250514 を追加する。
+000906  textareaを操作するためのエリアを作る
+000907  Caddyでの利用を考慮しhttp.ListenAndServe()も使えるようにする
+000908  gemini-2.5-proと gemini-2.5-flash oのモデル名を変更する。
+000909  モデル名、ベンダー名、システム名をyamlファイルから読み込むようにする。
 */
 
-const version = "000904"
+const version = "000909"
 
 type CustomTime time.Time
 
@@ -108,6 +112,13 @@ func main() {
 	}
 	log.Printf("%+v\n", svconfig)
 
+	// 設定ファイルを読み込み
+	err = LoadConfig("config.yml")
+	if err != nil {
+		log.Printf("LoadConfig() error. err = %v\n", err)
+		os.Exit(1)
+	}
+
 	// データベース接続
 	err = SetupDB()
 	if err != nil {
@@ -121,10 +132,17 @@ func main() {
 	http.HandleFunc("/login", LoginHandler)
 	http.HandleFunc("/", ValidateJWT(HandlerDschat))
 
-	// err = http.ListenAndServe(":"+sport, nil)
-	err = http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
-	if err != nil {
-		log.Printf("ListenAndServe() error. err = %v\n", err)
+	if svconfig.SSLcrt == "" || svconfig.SSLkey == "" {
+		err = http.ListenAndServe(":"+svconfig.HTTPport, nil)
+		if err != nil {
+			log.Printf("ListenAndServe() error. err = %v\n", err)
+		}
+	} else {
+		err = http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
+		log.Printf("SSL enabled. Listening on port %s\n", svconfig.HTTPport)
+		if err != nil {
+			log.Printf("ListenAndServe() error. err = %v\n", err)
+		}
 	}
 
 }

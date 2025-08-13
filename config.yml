@@ -1,0 +1,62 @@
+systemlist:
+  none: ""
+  Go: "あなたはGoのエクスパート。開発環境はLinuxMint21.3 + vscode、Go1.24.5、net/http＋go-template、DBはMySQL Ver 8.0.41-0にgorpでアクセス、JavaScript/TypeScriptは勉強中、goのWebAssemblyに大いに興味があります。"
+  ESP32: "あなたは ESP32 のエキスパート。開発にはArduinoIDEを使っています。"
+  Arduino: "あなたは Arduino のエキスパート。開発にはArduinoIDEを使っています。"
+  OPi: "あなたは Orange Pi Zero 3のエキスパート。OSはUbuntu系で開発にはGo 1.23.1 + Cgo + WiringOP を使っています。"
+
+venderlist:
+  Goodle:
+    evapi: "GOOGLE_API_KEY"
+    apikey: ""
+    url: "https://generativelanguage.googleapis.com/v1beta/models/"
+  Anthropic:
+    evapi: "CLAUDE_API_KEY"
+    apikey: ""
+    url: "https://api.anthropic.com/v1/messages"
+  DeepSeek:
+    evapi: "DEEPSEEK_API_KEY"
+    apikey: ""
+    url: "https://api.deepseek.com/v1/chat/completions"
+  OpenAI:
+    evapi: "OPENAI_API_KEY"
+    apikey: ""
+    url: "https://api.openai.com/v1/chat/completions"
+
+modellist:
+  gemini-2.0-flash:
+    model: "gemini"
+    vendor: "Goodle"
+  gemini-2.5-flash:
+    model: "gemini"
+    vendor: "Goodle"
+  gemini-2.5-pro:
+    model: "gemini"
+    vendor: "Goodle"
+  claude-sonnet-4-20250514:
+    model: "claude"
+    vendor: "Anthropic"
+  claude-3-7-sonnet-20250219:
+    model: "claude"
+    vendor: "Anthropic"
+  claude-3-5-haiku-20241022:
+    model: "claude"
+    vendor: "Anthropic"
+  deepseek-chat:
+    model: "openai"
+    vendor: "DeepSeek"
+  deepseek-code:
+    model: "openai"
+    vendor: "DeepSeek"
+  deepseek-reasoner:
+    model: "openai"
+    vendor: "DeepSeek"
+  gpt-4o-mini-2024-07-18:
+    model: "openai"
+    vendor: "OpenAI"
+  o3-mini-2025-01-31:
+    model: "openai2"
+    vendor: "OpenAI"
+  gpt-4o-2024-08-06:
+    model: "openai"
+    vendor: "OpenAI"

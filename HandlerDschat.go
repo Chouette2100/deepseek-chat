@@ -10,7 +10,9 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+
 	// "net/smtp"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,6 +20,7 @@ import (
 
 	"github.com/Chouette2100/srdblib/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"gopkg.in/yaml.v2"
 )
 
 type qah struct {
@@ -34,44 +37,57 @@ type Modeltype struct {
 	Vendor string
 }
 
-var systemlist map[string]string = map[string]string{
-	"none":    "",
-	"Go":      "あなたはGoのエクスパート。環境はLinuxMint21.3、Go1.23.1、net/http＋go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはかんたんなものに使って、複雑なもの処理量の多いものはgoのWebAssemblyにしたい。",
-	"ESP32":   "あなたは ESP32 のエキスパート。開発にはArduinoIDEを使っています。",
-	"Arduino": "あなたは Arduino のエキスパート。開発にはArduinoIDEを使っています。",
-	"OPi":     "あなたは Orange Pi Zero 3のエキスパート。OSはUbuntu系で開発にはGo 1.23.1 + Cgo + WiringOP を使っています。",
-}
-
 type Venderinf struct {
-	EvAPI  string
-	Apikey string
-	Url    string
+	EvAPI  string `yaml:"evapi"`
+	Apikey string `yaml:"apikey"`
+	Url    string `yaml:"url"`
 }
 
-var venderlist map[string]Venderinf = map[string]Venderinf{
-	"Goodle":    {EvAPI: "GOOGLE_API_KEY", Url: "https://generativelanguage.googleapis.com/v1beta/models/"},
-	"Anthropic": {EvAPI: "CLAUDE_API_KEY", Url: "https://api.anthropic.com/v1/messages"},
-	"DeepSeek":  {EvAPI: "DEEPSEEK_API_KEY", Url: "https://api.deepseek.com/v1/chat/completions"},
-	"OpenAI":    {EvAPI: "OPENAI_API_KEY", Url: "https://api.openai.com/v1/chat/completions"},
+type Config struct {
+	Systemlist map[string]string    `yaml:"systemlist"`
+	Venderlist map[string]Venderinf `yaml:"venderlist"`
+	Modellist  map[string]Modeltype `yaml:"modellist"`
 }
 
-var modellist map[string]Modeltype = map[string]Modeltype{
-	"gemini-2.0-flash":               {Model: "gemini", Vendor: "Goodle"},
-	"gemini-2.5-flash-preview-04-17": {Model: "gemini", Vendor: "Goodle"},
-	"gemini-2.5-pro-preview-05-06":   {Model: "gemini", Vendor: "Goodle"},
-	"claude-sonnet-4-20250514":       {Model: "claude", Vendor: "Anthropic"},
-	"claude-3-7-sonnet-20250219":     {Model: "claude", Vendor: "Anthropic"},
-	"claude-3-5-haiku-20241022":      {Model: "claude", Vendor: "Anthropic"},
-	"deepseek-chat":                  {Model: "openai", Vendor: "DeepSeek"},
-	"deepseek-code":                  {Model: "openai", Vendor: "DeepSeek"},
-	"deepseek-reasoner":              {Model: "openai", Vendor: "DeepSeek"},
-	"gpt-4o-mini-2024-07-18":         {Model: "openai", Vendor: "OpenAI"},
-	"o3-mini-2025-01-31":             {Model: "openai2", Vendor: "OpenAI"},
-	"gpt-4o-2024-08-06":              {Model: "openai", Vendor: "OpenAI"},
-}
+// システムプロンプトの定義
+var systemlist map[string]string
+
+// ベンダー情報（API キー環境変数名、URL）
+var venderlist map[string]Venderinf
+
+// モデルとベンダーのマッピング
+var modellist map[string]Modeltype
 
 var jwtKey = []byte("your_secret_key")
 var verificationCodes = sync.Map{} // To store email verification codes temporarily
+
+// LoadConfig loads configuration from YAML file
+func LoadConfig(filename string) error {
+	file, err := os.ReadFile(filename)
+	if err != nil {
+		return fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	var config Config
+	err = yaml.Unmarshal(file, &config)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal config: %w", err)
+	}
+
+	// 環境変数からAPIキーを設定
+	for vendor, venderInf := range config.Venderlist {
+		if key := os.Getenv(venderInf.EvAPI); key != "" {
+			venderInf.Apikey = key
+			config.Venderlist[vendor] = venderInf
+		}
+	}
+
+	systemlist = config.Systemlist
+	venderlist = config.Venderlist
+	modellist = config.Modellist
+
+	return nil
+}
 
 // GenerateJWT generates a JWT token for a given email
 func GenerateJWT(email string) (string, error) {

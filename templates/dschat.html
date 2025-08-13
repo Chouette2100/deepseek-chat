@@ -60,14 +60,14 @@
         <label for="systemD">OPi</label>
         {{/*
         <br><label for="system">編集:</label>
-        <textarea id="system" name='system' style='width: 50em;' rows='1'>{{.System}}</textarea>
+        <textarea id="system" name='system' style='width: 40em;' rows='1'>{{.System}}</textarea>
         */}}
         <br><label for="question">質問:</label>
-        <textarea id="question" name='question' style='width: 50em;' rows='1'></textarea>
+        <textarea id="question" name='question' style='width: 40em;' rows='1'></textarea>
         <br><button type="submit">送信</button>
         {{ end }}
         <hr>
-        検索対象: <textarea name="target" value="{{ .Target }}" rows='1' style='width: 30em;'>{{.Target}}</textarea>
+        検索対象: <textarea name="target" value="{{ .Target }}" rows='1' style='width: 30em;'>{{.Target}}</textarea> &nbsp; &nbsp; &nbsp; *
         <button type="submit">検索</button>
         <hr>
         <div>
@@ -92,7 +92,7 @@
                         id={{ .Id }}&nbsp;&nbsp;
                         modelname=<span style="color: {{ colorOfModel .Modelname }};">{{ .Modelname }}</span>&nbsp;&nbsp;
                         maxtokens={{ .Maxtokens }}&nbsp;&nbsp;
-                        [{{ TimeToStringY .Timestamp }}&nbsp;({{ sprintfResponsetime "%5.1f" .Responsetime }}s)]&nbsp;&nbsp;
+                        [{{ TimeToStringY .Timestamp }}&nbsp;({{ sprintfResponsetime "%5.1f" .Responsetime }}s)]&nbsp;&nbsp;*
                     </td>
                 </tr>
                 <tr>
@@ -100,15 +100,15 @@
                         <input type="hidden" name="modelname{{$i}}" value="{{.Modelname}}">
                     </td>
                     <td>
-                        <textarea id="question{{$i}}" name='question{{$i}}' style='width: 50em;' rows='1'
-                            readonly>{{ .Question }}</textarea>
+                        <textarea id="question{{$i}}" name='question{{$i}}' style='width: 40em;' rows='1'
+                            readonly>{{ .Question }}</textarea> &nbsp; &nbsp; &nbsp; 
                     </td>
                 </tr>
                 <tr>
                     <td></td>
                     <td>
-                        <textarea id="answer{{$i}}" name='answer{{$i}}' style='width: 50em;' rows='1'
-                            readonly>{{ .Answer }}</textarea>
+                        <textarea id="answer{{$i}}" name='answer{{$i}}' style='width: 40em;' rows='1'
+                            readonly>{{ .Answer }}</textarea> &nbsp; &nbsp; &nbsp; 
                     </td>
                 </tr>
                 {{ $i = add $i 1 }}
@@ -135,6 +135,25 @@
             {{ end }}
         </div>
     </form>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
 </body>
 
 </html>
