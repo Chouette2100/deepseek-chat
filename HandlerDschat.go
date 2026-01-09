@@ -201,7 +201,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 				Expires: time.Now().Add(24 * time.Hour),
 				// 以下追加(deepseek-chat)
 				HttpOnly: true, // JavaScriptからアクセス不可
-				Secure:   true, // HTTPSのみ
+				// Secure:   true, // HTTPSのみ
+				Secure:   false, // HTTPも、開発環境用
 				SameSite: http.SameSiteStrictMode,
 				Path:     "/",
 			})
@@ -331,12 +332,13 @@ func HandlerDschat(
 
 	offset := (page - 1) * pageSize
 	var intf []interface{}
+	clmlist["qa_recordsDB"] = " id, timestamp, responsetime, modelname, maxtokens, temperature, `system`, question, answer, itokens, otokens, stopreason "
 	sqlst := ""
 	if top.Target == "" {
-		sqlst = "SELECT * FROM qa_records ORDER BY id DESC LIMIT ? OFFSET ? "
+		sqlst = "SELECT " + clmlist["qa_recordsDB"] + " FROM qa_records ORDER BY id DESC LIMIT ? OFFSET ? "
 		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, pageSize, offset)
 	} else {
-		sqlst = "SELECT * FROM qa_records "
+		sqlst = "SELECT " + clmlist["qa_recordsDB"] + " FROM qa_records "
 		sqlst += " WHERE MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE) "
 		sqlst += " ORDER BY id DESC LIMIT ? OFFSET ? "
 		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, top.Target, pageSize, offset)

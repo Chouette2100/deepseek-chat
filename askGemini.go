@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	// "google.golang.org/genai"
 )
 
 type GeminiPayload struct {
@@ -197,18 +198,18 @@ func askGemini(
 		return
 	}
 
-	printJSON(body)
-
 	// log.Println(string(body))
 	// log.Printf("%+v\n", result)
 
 	// 1. candidates - content - parts の text を取得
 	if result == nil {
 		err = fmt.Errorf("result is nil")
+		printJSON(body)
 		return
 	}
 	if _, ok := result["candidates"]; !ok {
 		err = fmt.Errorf("candidates not found")
+		printJSON(body)
 		return
 	}
 	candidates := result["candidates"].([]interface{})

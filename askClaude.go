@@ -131,11 +131,11 @@ func askClaude(
 	if err != nil {
 		err = fmt.Errorf("io.ReadAll(): レスポンスの読み取りに失敗しました: %w", err)
 		log.Printf("%s", err)
+		printJSON(body)
 		return
 	}
 	qa.Responsetime = time.Since(qa.Timestamp).Milliseconds()
 	log.Printf("レスポンス時間: %d ms\n", qa.Responsetime)
-	printJSON(body)
 
 	// ステータスコードの確認
 	if resp.StatusCode != http.StatusOK {

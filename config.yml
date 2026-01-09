@@ -1,12 +1,12 @@
 systemlist:
   none: ""
-  Go: "あなたはGoのエクスパート。開発環境はLinuxMint21.3 + vscode、Go1.24.5、net/http＋go-template、DBはMySQL Ver 8.0.41-0にgorpでアクセス、JavaScript/TypeScriptは勉強中、goのWebAssemblyに大いに興味があります。"
-  ESP32: "あなたは ESP32 のエキスパート。開発にはArduinoIDEを使っています。"
-  Arduino: "あなたは Arduino のエキスパート。開発にはArduinoIDEを使っています。"
-  OPi: "あなたは Orange Pi Zero 3のエキスパート。OSはUbuntu系で開発にはGo 1.23.1 + Cgo + WiringOP を使っています。"
+  Go: "あなたはGoのエクスパート。開発環境はLinuxMint21.3、実行環境はubuntu server 24.04.2 LTS、Go1.25.5、net/http＋go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはかんたんなものに使って、複雑なもの処理量の多いものはgoのWebAssemblyにしたい。"
+  ESP32: "LinuxMint21.3上でvscode＋PlatformIO+ESP-IDFを使ってプログラムを開発します"
+  Arduino: "あなたは Arduino のエキスパート。開発にはvscode＋PlatformIOを使っています。"
+  OPi: "あなたは Orange Pi Zero 3のエキスパート。OSはArmbianで開発はGo 1.25.5 + 1 Periph.io(LinuxMint vscodeでクロスコンパイル、delveでデバッグ)を使っています。"
 
 venderlist:
-  Goodle:
+  Google:
     evapi: "GOOGLE_API_KEY"
     apikey: ""
     url: "https://generativelanguage.googleapis.com/v1beta/models/"
@@ -26,26 +26,38 @@ venderlist:
 modellist:
   gemini-2.0-flash:
     model: "gemini"
-    vendor: "Goodle"
+    vendor: "Google"
   gemini-2.5-flash:
     model: "gemini"
-    vendor: "Goodle"
+    vendor: "Google"
+  gemini-2.5-flash-lite-preview-09-2025:
+    model: "gemini"
+    vendor: "Google"
   gemini-2.5-pro:
     model: "gemini"
-    vendor: "Goodle"
+    vendor: "Google"
+  gemini-3-flash-preview:
+    model: "gemini"
+    vendor: "Google"
+  claude-opus-4-5-20251101:
+    model: "claude"
+    vendor: "Anthropic"
+  claude-sonnet-4-5-20250929:
+    model: "claude"
+    vendor: "Anthropic"
+  claude-haiku-4-5-20251001:
+    model: "claude"
+    vendor: "Anthropic"
   claude-sonnet-4-20250514:
     model: "claude"
     vendor: "Anthropic"
-  claude-3-7-sonnet-20250219:
-    model: "claude"
-    vendor: "Anthropic"
-  claude-3-5-haiku-20241022:
+  claude-3-haiku-20240307:
     model: "claude"
     vendor: "Anthropic"
   deepseek-chat:
     model: "openai"
     vendor: "DeepSeek"
-  deepseek-code:
+  deepseek-reasoner:
     model: "openai"
     vendor: "DeepSeek"
   deepseek-reasoner:

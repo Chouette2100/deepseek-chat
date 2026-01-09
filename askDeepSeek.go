@@ -100,11 +100,10 @@ func AskDeepSeek(
 	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		err = fmt.Errorf("error reading response body: %v", err)
+		printJSON(body)
 		return
 	}
 	qa.Responsetime = time.Since(qa.Timestamp).Milliseconds()
-
-	printJSON(body)
 
 	res := OpenaiResponse{}
 	if err = json.Unmarshal(body, &res); err != nil {
@@ -122,6 +121,7 @@ func AskDeepSeek(
 	var result map[string]interface{}
 	if err = json.Unmarshal(body, &result); err != nil {
 		err = fmt.Errorf("error unmarshalling response: %v", err)
+		printJSON(body)
 		return
 	}
 
@@ -138,6 +138,7 @@ func AskDeepSeek(
 
 	err = fmt.Errorf("invalid response format")
 	log.Printf("%s", err)
+	printJSON(body)
 
 	return
 }

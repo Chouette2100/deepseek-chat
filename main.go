@@ -15,6 +15,7 @@ import (
 	// "github.com/joho/godotenv"
 
 	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srcom"
 	"github.com/Chouette2100/srdblib/v2"
 )
 
@@ -34,9 +35,14 @@ import (
 000907  Caddyでの利用を考慮しhttp.ListenAndServe()も使えるようにする
 000908  gemini-2.5-proと gemini-2.5-flash oのモデル名を変更する。
 000909  モデル名、ベンダー名、システム名をyamlファイルから読み込むようにする。
+000910  select * は使わず、カラム名を指定する。
+000911  エラー発生時にデコードする前のレスポンスボディをログに出力する。
+000912  000910でのmap名とカラムリストの誤りをclmlistと正す
+000913  clmlistを固定化し、geminiではLocationを"asia-northeast1"とする(後者は無意味)
+000914  clmlistのidの抜けを修正する
 */
 
-const version = "000909"
+const version = "000914"
 
 type CustomTime time.Time
 
@@ -81,6 +87,21 @@ func init() {
 	}
 }
 
+var clmlist map[string]string = map[string]string{}
+
+func init() {
+	clmlist["user"] = srdblib.ExtractStructColumns(&srdblib.User{})
+	clmlist["qa_recordsDB"] = srdblib.ExtractStructColumns(&Qa_recordsDB{})
+}
+
+/*
+var syslist map[string]string = map[string]string{}
+
+func init() {
+	syslist["qa_recordsDB"] = srdblib.ExtractStructColumns(&Qa_recordsDB{})
+}
+*/
+
 func main() {
 
 	//	go func() {
@@ -98,11 +119,13 @@ func main() {
 
 	// ログファイルを作成
 	var pfile *os.File
-	pfile, err = CreateLogfile(version)
+	pfile, err = srcom.CreateLogfile3(version, srdblib.Version)
 	if err != nil {
 		fmt.Println("Error creating logfile")
 	}
 	defer pfile.Close()
+
+	log.Printf("clmlist=%+v\n", clmlist)
 
 	svconfig := &ServerConfig{}
 	err = exsrapi.LoadConfig("ServerConfig.yml", svconfig)
