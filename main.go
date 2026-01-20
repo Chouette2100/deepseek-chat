@@ -38,11 +38,13 @@ import (
 000910  select * は使わず、カラム名を指定する。
 000911  エラー発生時にデコードする前のレスポンスボディをログに出力する。
 000912  000910でのmap名とカラムリストの誤りをclmlistと正す
-000913  clmlistを固定化し、geminiではLocationを"asia-northeast1"とする(後者は無意味)
+000913  clmlistを固定化する。
 000914  clmlistのidの抜けを修正する
+001000  genaiパッケージを使ってgeminiに問い合わせるようにする
+001001  log.Fatal()を使わず、エラーを返すようにする
 */
 
-const version = "000914"
+const version = "001001"
 
 type CustomTime time.Time
 

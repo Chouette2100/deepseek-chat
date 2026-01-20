@@ -1,16 +1,18 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
+	// "bytes"
+	// "encoding/json"
 	"fmt"
-	"io"
+	// "io"
 	"log"
-	"net/http"
+	// "net/http"
 	"time"
-	// "google.golang.org/genai"
+
+	"google.golang.org/genai"
 )
 
+/*
 type GeminiPayload struct {
 	Contents          []Contents        `json:"contents"`
 	SystemInstruction SystemInstruction `json:"systemInstruction"`
@@ -66,13 +68,13 @@ type GmnResUsageMetadata struct {
 	PromptTokensDetails     []PromptTokensDetails           `json:"promptTokensDetails"`
 	CandidatesTokensDetails []GmnResCandidatesTokensDetails `json:"candidatesTokensDetails"`
 }
+*/
 
 // Geminiに聞く！
 // 参考 https://ai.google.dev/gemini-api/docs/quickstart?hl=ja#go
 func askGemini(
 	qa *Qa_recordsDB,
 	history []qah,
-	url string, // APIエンドポイント
 	apiKey string,
 ) (
 	err error,
@@ -84,14 +86,19 @@ func askGemini(
 		return
 	}
 
-	// url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey
-	url = url + qa.Modelname + ":generateContent?key=" + apiKey
-	// url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent" //APIキーをURLに含めない
-	// url := "https://generativelanguage.googleapis.com/v1beta/models/" + qa.Modelname + ":generateContent" //APIキーをURLに含めない
+	// SystemInstruction
+	si := &genai.Content{
+		Parts: []*genai.Part{
+			{
+				Text: qa.System,
+			},
+		},
+	}
 
 	log.Printf("history=%v\n", history)
 
-	contents := make([]Contents, 0)
+	uq := make([]*genai.Content, 0)
+
 	// Q&Aの履歴を追加
 	for i := 0; i < len(history); i++ {
 		whotoldme := ""
@@ -100,144 +107,79 @@ func askGemini(
 			whotoldme = history[i].Model + " は答えました:\n"
 			whodiditell = history[i].Model + " に聞きました:\n"
 		}
-		contents = append(contents, Contents{Role: "user", Parts: []Parts{{Text: whodiditell + history[i].Question}}})
-		contents = append(contents, Contents{Role: "model", Parts: []Parts{{Text: whotoldme + history[i].Answer}}})
-	}
-
-	// ユーザーの質問を追加
-	contents = append(contents, Contents{Role: "user", Parts: []Parts{{Text: qa.Question}}})
-
-	payload := GeminiPayload{
-		Contents: contents,
-		SystemInstruction: SystemInstruction{
-			Parts: []Parts{{Text: qa.System}},
-		},
-		GenerationConfig: GenerationConfig{
-			Temperature: qa.Temperature,
-			// TopP:            0.9,
-			// TopK:            0,
-			MaxOutputTokens: qa.Maxtokens,
-		},
-	}
-	/*
-		payload := map[string]interface{}{
-			"contents": []map[string]interface{}{
+		content := genai.Content{
+			Role: "user",
+			Parts: []*genai.Part{
 				{
-					"role": "user",
-					"parts": []map[string]interface{}{
-						{
-							"text": qa.Question,
-						},
-					},
-				},
-			},
-			"systemInstruction": []map[string]interface{}{
-				{
-					"parts": []map[string]interface{}{
-						{
-							"text": qa.System,
-						},
-					},
-				},
-			},
-			"generationConfig": []map[string]interface{}{
-				{
-					"temperature":     qa.Temperature,
-					"maxOutputTokens": qa.Maxtokens,
+					Text: whodiditell + history[i].Question,
 				},
 			},
 		}
-	*/
-	var payloadBytes []byte
-	payloadBytes, err = json.Marshal(&payload)
-	if err != nil {
-		// fmt.Println("JSONエンコードエラー:", err)
-		err = fmt.Errorf("JSONエンコードエラー: %w", err)
-		return
+		uq = append(uq, &content)
+		content = genai.Content{
+			Role: "model",
+			Parts: []*genai.Part{
+				{
+					Text: whotoldme + history[i].Answer,
+				},
+			},
+		}
+		uq = append(uq, &content)
 	}
 
-	// printJSON(payloadBytes)
-
-	var req *http.Request
-	req, err = http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
-	if err != nil {
-		// fmt.Println("リクエスト作成エラー:", err)
-		err = fmt.Errorf("リクエスト作成エラー: %w", err)
-		return
+	// ユーザーの質問を追加
+	content := genai.Content{
+		Role: "user",
+		Parts: []*genai.Part{
+			{
+				Text: qa.Question,
+			},
+		},
 	}
-	req.Header.Set("Content-Type", "application/json")
-	// req.Header.Set("x-goog-api-key", apiKey) //APIキーをヘッダーに設定
-	// req.Header.Set("Authorization", "Bearer "+apiKey)
+	uq = append(uq, &content)
 
-	client := &http.Client{}
+	log.Printf("uq: %s\n", spewConfig.Sdump(uq))
+
 	qa.Timestamp = time.Now()
-	var resp *http.Response
-	resp, err = client.Do(req)
-	if err != nil {
-		// fmt.Println("リクエスト送信エラー:", err)
-		err = fmt.Errorf("リクエスト送信エラー: %w", err)
-		return
-	}
-	defer resp.Body.Close()
 
-	var body []byte
-	body, err = io.ReadAll(resp.Body)
-	if err != nil {
-		// fmt.Println("レスポンス読み込みエラー:", err)
-		err = fmt.Errorf("レスポンス読み込みエラー: %w", err)
-		return
-	}
+	result, err := ExecQuery(
+		apiKey,
+		qa.Modelname,
+		si,
+		uq,
+		float32(qa.Temperature),
+		qa.Maxtokens,
+	)
+
 	qa.Responsetime = time.Since(qa.Timestamp).Milliseconds()
-
-	var result map[string]interface{}
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		// fmt.Println("JSONデコードエラー:", err)
-		err = fmt.Errorf("JSONデコードエラー: %w", err)
-		printJSON(body)
-		return
-	}
-
-	// log.Println(string(body))
-	// log.Printf("%+v\n", result)
 
 	// 1. candidates - content - parts の text を取得
 	if result == nil {
 		err = fmt.Errorf("result is nil")
-		printJSON(body)
 		return
 	}
-	if _, ok := result["candidates"]; !ok {
+	if len(result.Candidates) == 0 {
 		err = fmt.Errorf("candidates not found")
-		printJSON(body)
+		log.Printf("result: %s\n", spewConfig.Sdump(result))
 		return
 	}
-	candidates := result["candidates"].([]interface{})
-	content := candidates[0].(map[string]interface{})["content"].(map[string]interface{})
-	parts := content["parts"].([]interface{})
+	candidates := result.Candidates
+	content = *candidates[0].Content
+	parts := content.Parts
 	log.Printf("parts=%+v\n", parts)
 	text := ""
 	for _, part := range parts {
-		if partMap, ok := part.(map[string]interface{}); ok {
-			if textPart, ok := partMap["text"].(string); ok {
-				text += textPart
-			}
-		}
+		text += part.Text
 	}
-	// text := parts[0].(map[string]interface{})["text"].(string)
-	fmt.Println("Text:", text)
+	log.Printf("Text: %s", text)
 	qa.Answer = text
 
 	// 2. usageMetadata の値を取得
-	usageMetadata := result["usageMetadata"].(map[string]interface{})
-	promptTokenCount := int(usageMetadata["promptTokenCount"].(float64))
-	candidatesTokenCount := int(usageMetadata["candidatesTokenCount"].(float64))
-	totalTokenCount := int(usageMetadata["totalTokenCount"].(float64))
-	fmt.Println("Prompt Token Count:", promptTokenCount)
-	fmt.Println("Candidates Token Count:", candidatesTokenCount)
-	fmt.Println("Total Token Count:", totalTokenCount)
-	qa.Itokens = promptTokenCount
-	qa.Otokens = candidatesTokenCount
+	log.Printf("Prompt Token Count: %d", result.UsageMetadata.PromptTokenCount)
+	log.Printf("Candidates Token Count: %d", result.UsageMetadata.CandidatesTokenCount)
+	log.Printf("Total Token Count: %d", result.UsageMetadata.TotalTokenCount)
+	qa.Itokens = int(result.UsageMetadata.PromptTokenCount)
+	qa.Otokens = int(result.UsageMetadata.CandidatesTokenCount)
 
 	return
 }

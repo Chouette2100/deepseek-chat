@@ -255,7 +255,7 @@ func HandlerDschat(
 	question := r.FormValue("question")
 	top.Qa.Modelname = r.FormValue("modelname")
 	if top.Qa.Modelname == "" {
-		top.Qa.Modelname = "gemini-2.5-flash-preview-04-17"
+		top.Qa.Modelname = "gemini-2.5-flash-lite-preview-09-2025"
 	}
 	dsmt := r.FormValue("maxtokens")
 	top.Qa.Maxtokens, _ = strconv.Atoi(dsmt)
@@ -270,7 +270,8 @@ func HandlerDschat(
 
 	top.Target = r.FormValue("target")
 
-	for i := 9; i >= 0; i-- {
+	// for i := 9; i >= 0; i-- {
+	for i := 0; i < pageSize; i++ { // id=3242 gemini-2.5-flash-lite-preview-09-2025
 		it := r.FormValue(fmt.Sprintf("checkbox%d", i))
 		if it == "on" {
 			history = append(history,
@@ -293,7 +294,7 @@ func HandlerDschat(
 		case "claude":
 			err = askClaude(&top.Qa, history, url, apiKey)
 		case "gemini":
-			err = askGemini(&top.Qa, history, url, apiKey)
+			err = askGemini(&top.Qa, history, apiKey)
 		case "openai":
 			err = askOpenAI(&top.Qa, history, url, apiKey)
 		case "openai2":
