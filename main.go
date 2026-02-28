@@ -44,9 +44,10 @@ import (
 001001  log.Fatal()を使わず、エラーを返すようにする
 001100  ModeltypeにCommentを追加する
 001200  modelnameの表示順をやyamlファイルの順番にする
+001300  IDを指定するとそのIDが含まれるページに移動する。
 */
 
-const version = "001001"
+const version = "001300"
 
 type CustomTime time.Time
 

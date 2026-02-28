@@ -22,7 +22,7 @@
         <label for="modelname">Model:</label>
         <select name="modelname">
             {{ range .Modellist }}
-            <option value="{{.}}" {{ if eq $m . }}selected{{ end }}>{{ . }}</option>
+            <option value="{{.Model}}" {{ if eq $m .Model }}selected{{ end }}>{{ .Model }}{{if .Comment}}（{{.Comment}}）{{end}}</option>
             {{ end }}
         </select>
 
@@ -40,6 +40,10 @@
             <option value="16384" {{ if eq .Maxtokens 16384 }}selected{{ end }}>16384</option>
             <option value="20000" {{ if eq .Maxtokens 20000 }}selected{{ end }}>20000</option>
         </select>
+
+        <label for="startid">Start ID:</label>
+        <input type="number" name="startid" value="{{ $.StartID }}" style="width: 6em;">
+        <button type="submit">移動/更新</button>
 
         <label for="temperature">Temperature:</label>
         <select name="temperature">

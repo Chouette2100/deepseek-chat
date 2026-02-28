@@ -255,7 +255,7 @@ func HandlerDschat(
 		Qa           Qa_recordsDB
 		Qalist       []Qa_recordsDB
 		SIselected   string
-		Modellist    []string
+		Modellist    []Modeltype
 		Target       string
 		HasNext      bool
 		HasPrevious  bool
@@ -263,9 +263,35 @@ func HandlerDschat(
 		PreviousPage int
 		Stmp         string
 		Systemkeys   []string
+		StartID      int
 	}
 	top := Top{}
-	top.Modellist = modelkeys
+
+	top.StartID, _ = strconv.Atoi(r.FormValue("startid"))
+	if top.StartID > 0 && pageStr == "" {
+		// IDが入力され、かつ「前へ/次へ」ボタンが押されていない場合、そのIDを含むページを表示する
+		var totalRecords int64
+		err = srdblib.Dbmap.SelectOne(&totalRecords, "SELECT COUNT(*) FROM qa_records")
+		if err == nil {
+			var maxID int64
+			err = srdblib.Dbmap.SelectOne(&maxID, "SELECT MAX(id) FROM qa_records")
+			if err == nil {
+				// IDが降順(DESC)で表示されているため、最新IDからの差分でオフセットを計算
+				offset := maxID - int64(top.StartID)
+				if offset < 0 {
+					offset = 0
+				}
+				page = int(offset/pageSize) + 1
+			}
+		}
+	}
+
+	for _, key := range modelkeys {
+		mt := modellist[key]
+		// config.ymlのkeyをModelフィールドに保持するようにしてスライスに追加
+		mt.Model = key
+		top.Modellist = append(top.Modellist, mt)
+	}
 	top.Systemkeys = systemkeys
 
 	top.SIselected = r.FormValue("system")
