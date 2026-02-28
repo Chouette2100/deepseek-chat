@@ -5,6 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenAI Q&A</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .markdown-body {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            min-height: 1.2em;
+            width: 60em;
+            max-width: 85vw;
+            box-sizing: border-box;
+            display: none;
+            overflow-wrap: break-word;
+        }
+        .markdown-body pre {
+            background-color: #eee;
+            padding: 5px;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 
 <body>
@@ -74,11 +93,11 @@
         <textarea id="system" name='system' style='width: 40em;' rows='1'>{{.System}}</textarea>
         */}}
         <br><label for="question">質問:</label>
-        <textarea id="question" name='question' style='width: 40em;' rows='1'></textarea>
+        <textarea id="question" name='question' style='width: 60em; max-width: 85vw;' rows='1'></textarea>
         <br><button type="submit">送信</button>
         {{ end }}
         <hr>
-        検索対象: <textarea name="target" value="{{ .Target }}" rows='1' style='width: 30em;'>{{.Target}}</textarea> &nbsp; &nbsp; &nbsp; *
+        検索対象: <textarea name="target" value="{{ .Target }}" rows='1' style='width: 45em; max-width: 85vw;'>{{.Target}}</textarea> &nbsp; &nbsp; &nbsp; *
         <button type="submit">検索</button>
         <hr>
         <div>
@@ -111,15 +130,23 @@
                         <input type="hidden" name="modelname{{$i}}" value="{{.Modelname}}">
                     </td>
                     <td>
-                        <textarea id="question{{$i}}" name='question{{$i}}' style='width: 40em;' rows='1'
-                            readonly>{{ .Question }}</textarea> &nbsp; &nbsp; &nbsp; 
+                        <div style="display: flex; align-items: flex-start;">
+                            <textarea id="question{{$i}}" name='question{{$i}}' style='width: 60em; max-width: 85vw;' rows='1'
+                                readonly>{{ .Question }}</textarea>
+                            <div id="md_question{{$i}}" class="markdown-body"></div>
+                            <button type="button" id="btn_question{{$i}}" onclick="toggleMD('question{{$i}}')" style="margin-left: 10px;">MD変換</button>
+                        </div>
                     </td>
                 </tr>
                 <tr>
                     <td></td>
                     <td>
-                        <textarea id="answer{{$i}}" name='answer{{$i}}' style='width: 40em;' rows='1'
-                            readonly>{{ .Answer }}</textarea> &nbsp; &nbsp; &nbsp; 
+                        <div style="display: flex; align-items: flex-start;">
+                            <textarea id="answer{{$i}}" name='answer{{$i}}' style='width: 60em; max-width: 85vw;' rows='1'
+                                readonly>{{ .Answer }}</textarea>
+                            <div id="md_answer{{$i}}" class="markdown-body"></div>
+                            <button type="button" id="btn_answer{{$i}}" onclick="toggleMD('answer{{$i}}')" style="margin-left: 10px;">MD変換</button>
+                        </div>
                     </td>
                 </tr>
                 {{ $i = add $i 1 }}
@@ -146,6 +173,26 @@
             {{ end }}
         </div>
     </form>
+    <script>
+        function toggleMD(id) {
+            const textarea = document.getElementById(id);
+            const markdownDiv = document.getElementById('md_' + id);
+            const button = document.getElementById('btn_' + id);
+
+            if (textarea.style.display !== 'none') {
+                // Markdown表示へ
+                markdownDiv.innerHTML = marked.parse(textarea.value);
+                textarea.style.display = 'none';
+                markdownDiv.style.display = 'block';
+                button.textContent = 'TXT表示';
+            } else {
+                // テキスト表示へ
+                textarea.style.display = 'block';
+                markdownDiv.style.display = 'none';
+                button.textContent = 'MD変換';
+            }
+        }
+    </script>
     <br>
     <br>
     <br>

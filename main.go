@@ -45,9 +45,10 @@ import (
 001100  ModeltypeにCommentを追加する
 001200  modelnameの表示順をやyamlファイルの順番にする
 001300  IDを指定するとそのIDが含まれるページに移動する。
+001400  Markdown変換表示を行えるようにする。
 */
 
-const version = "001300"
+const version = "001400"
 
 type CustomTime time.Time
 
