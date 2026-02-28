@@ -33,8 +33,9 @@ type qah struct {
 var history []qah
 
 type Modeltype struct {
-	Model  string
-	Vendor string
+	Model   string
+	Vendor  string
+	Comment string
 }
 
 type Venderinf struct {

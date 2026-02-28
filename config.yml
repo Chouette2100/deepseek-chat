@@ -1,5 +1,5 @@
 systemlist:
-  none: "いろんなことに興味があります。"
+  none: "いろんなことに興味があります。環境はLinuxMint22.3/21.3, Ubuntu Server 24.04.02, FreeBSD 14.3, ESP32Forth v7.0.7.21, Orange Pi Zero 3 Armbian, "
   Go: "あなたはGoのエクスパート。開発環境はLinuxMint21.3、実行環境はubuntu server 24.04.2 LTS、Go1.25.5、net/http+go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス、JavaScriptはかんたんなものに使って、複雑なもの処理量の多いものはgoのWebAssemblyにしたい。"
   ESP32: "LinuxMint21.3上でvscode+PlatformIO+ESP-IDFを使ってプログラムを開発します。ただしESP32forthだけはArduino IDEでコンパイルしています。ボードはESP32-WROOM32とESP32-S3です。"
   Arduino: "あなたは Arduino のエキスパート。開発にはvscode+PlatformIOを使っています。"
@@ -25,50 +25,62 @@ venderlist:
 
 modellist:
   gemini-2.0-flash:
-    model: "gemini"
-    vendor: "Google"
-  gemini-2.5-flash:
+    comment: ""
     model: "gemini"
     vendor: "Google"
   gemini-2.5-flash-lite-preview-09-2025:
+    comment: ""
+    model: "gemini"
+    vendor: "Google"
+  gemini-2.5-flash:
+    comment: ""
     model: "gemini"
     vendor: "Google"
   gemini-2.5-pro:
+    comment: ""
     model: "gemini"
     vendor: "Google"
   gemini-3-flash-preview:
+    comment: ""
     model: "gemini"
     vendor: "Google"
-  claude-opus-4-5-20251101:
-    model: "claude"
-    vendor: "Anthropic"
   claude-sonnet-4-5-20250929:
+    comment: ""
     model: "claude"
     vendor: "Anthropic"
   claude-haiku-4-5-20251001:
+    comment: ""
     model: "claude"
     vendor: "Anthropic"
   claude-sonnet-4-20250514:
+    comment: ""
     model: "claude"
     vendor: "Anthropic"
   claude-3-haiku-20240307:
+    comment: ""
+    model: "claude"
+    vendor: "Anthropic"
+  claude-opus-4-5-20251101:
+    comment: ""
     model: "claude"
     vendor: "Anthropic"
   deepseek-chat:
+    comment: ""
     model: "openai"
     vendor: "DeepSeek"
   deepseek-reasoner:
+    comment: ""
     model: "openai"
     vendor: "DeepSeek"
-  deepseek-reasoner:
-    model: "openai"
-    vendor: "DeepSeek"
-  gpt-4o-mini-2024-07-18:
+  gpt-5-nano-2025-08-07:
+    comment: ""
     model: "openai"
     vendor: "OpenAI"
-  o3-mini-2025-01-31:
+  gpt-5-mini-2025-08-07:
+    comment: ""
+    model: "openai"
+    vendor: "OpenAI"
+  gpt-5.2-2025-12-11:
+    comment: ""
     model: "openai2"
-    vendor: "OpenAI"
-  gpt-4o-2024-08-06:
-    model: "openai"
     vendor: "OpenAI"
