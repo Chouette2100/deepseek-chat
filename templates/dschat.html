@@ -12,6 +12,12 @@
     <form id="askForm" action="/dschat" method="POST">
         {{ $t := .Stmp }}
         {{ $s := .SIselected }}
+        <label for="system">System:</label>
+        <select name="system" onchange="document.getElementById('askForm').submit();">
+            {{ range .Systemkeys }}
+            <option value="{{.}}" {{ if eq $s . }}selected{{ end }}>{{ . }}</option>
+            {{ end }}
+        </select>
         {{ $m := .Qa.Modelname }}
         <label for="modelname">Model:</label>
         <select name="modelname">

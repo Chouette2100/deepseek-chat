@@ -43,6 +43,7 @@ import (
 001000  genaiパッケージを使ってgeminiに問い合わせるようにする
 001001  log.Fatal()を使わず、エラーを返すようにする
 001100  ModeltypeにCommentを追加する
+001200  modelnameの表示順をやyamlファイルの順番にする
 */
 
 const version = "001001"

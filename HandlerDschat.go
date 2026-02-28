@@ -45,19 +45,21 @@ type Venderinf struct {
 }
 
 type Config struct {
-	Systemlist map[string]string    `yaml:"systemlist"`
+	Systemlist yaml.MapSlice        `yaml:"systemlist"`
 	Venderlist map[string]Venderinf `yaml:"venderlist"`
-	Modellist  map[string]Modeltype `yaml:"modellist"`
+	Modellist  yaml.MapSlice        `yaml:"modellist"`
 }
 
 // システムプロンプトの定義
 var systemlist map[string]string
+var systemkeys []string
 
 // ベンダー情報（API キー環境変数名、URL）
 var venderlist map[string]Venderinf
 
 // モデルとベンダーのマッピング
 var modellist map[string]Modeltype
+var modelkeys []string
 
 var jwtKey = []byte("your_secret_key")
 var verificationCodes = sync.Map{} // To store email verification codes temporarily
@@ -83,9 +85,27 @@ func LoadConfig(filename string) error {
 		}
 	}
 
-	systemlist = config.Systemlist
+	systemlist = make(map[string]string)
+	systemkeys = make([]string, 0)
+	for _, item := range config.Systemlist {
+		key := item.Key.(string)
+		val := item.Value.(string)
+		systemlist[key] = val
+		systemkeys = append(systemkeys, key)
+	}
+
 	venderlist = config.Venderlist
-	modellist = config.Modellist
+
+	modellist = make(map[string]Modeltype)
+	modelkeys = make([]string, 0)
+	for _, item := range config.Modellist {
+		key := item.Key.(string)
+		valByte, _ := yaml.Marshal(item.Value)
+		var mt Modeltype
+		yaml.Unmarshal(valByte, &mt)
+		modellist[key] = mt
+		modelkeys = append(modelkeys, key)
+	}
 
 	return nil
 }
@@ -242,15 +262,15 @@ func HandlerDschat(
 		NextPage     int
 		PreviousPage int
 		Stmp         string
+		Systemkeys   []string
 	}
 	top := Top{}
-	for k := range modellist {
-		top.Modellist = append(top.Modellist, k)
-	}
+	top.Modellist = modelkeys
+	top.Systemkeys = systemkeys
 
 	top.SIselected = r.FormValue("system")
 	if top.SIselected == "" {
-		top.SIselected = "Go"
+		top.SIselected = systemkeys[0]
 	}
 	top.Qa.System = systemlist[top.SIselected]
 	question := r.FormValue("question")
