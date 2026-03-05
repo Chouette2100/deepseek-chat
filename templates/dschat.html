@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenAI Q&A</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <style>
         .markdown-body {
             border: 1px solid #ccc;
@@ -174,6 +177,16 @@
         </div>
     </form>
     <script>
+        // 日本語環境での太字認識精度を上げるためのカスタム設定
+        const renderer = new marked.Renderer();
+        
+        marked.setOptions({
+            renderer: renderer,
+            breaks: true,
+            gfm: true,
+            silent: true
+        });
+
         function toggleMD(id) {
             const textarea = document.getElementById(id);
             const markdownDiv = document.getElementById('md_' + id);
@@ -181,7 +194,26 @@
 
             if (textarea.style.display !== 'none') {
                 // Markdown表示へ
-                markdownDiv.innerHTML = marked.parse(textarea.value);
+                let rawValue = textarea.value;
+
+                // ** の前後に日本語や記号がある場合に認識が壊れる現象への対策
+                // $...$ (数式) 内の ** が誤変換されないよう、一時的に数式を保護する処理を検討しましたが、
+                // まずは最も副作用の少ない「日本語との境界へのゼロ幅スペース(U+200B)挿入」で対応します。
+                // ゼロ幅スペースは見た目に影響せず、パーサーに境界を教えられます。
+                rawValue = rawValue.replace(/([^\s\w])\*\*/g, '$1\u200B**');
+                rawValue = rawValue.replace(/\*\*([^\s\w])/g, '**\u200B$1');
+
+                markdownDiv.innerHTML = marked.parse(rawValue);
+                
+                // KaTeXによる数式レンダリング (Markdown変換後の要素に対して適用)
+                renderMathInElement(markdownDiv, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false}
+                    ],
+                    throwOnError: false
+                });
+
                 textarea.style.display = 'none';
                 markdownDiv.style.display = 'block';
                 button.textContent = 'TXT表示';

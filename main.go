@@ -46,9 +46,10 @@ import (
 001200  modelnameの表示順をやyamlファイルの順番にする
 001300  IDを指定するとそのIDが含まれるページに移動する。
 001400  Markdown変換表示を行えるようにする。
+001401  数式描画にKaTeXを使えるようにする。
 */
 
-const version = "001400"
+const version = "001401"
 
 type CustomTime time.Time
 
