@@ -31,7 +31,7 @@ func AskDeepSeek(
 	}
 
 	// Q&Aの履歴を追加
-	for i := 0; i < len(history); i++ {
+	for i := range history {
 		whotoldme := ""
 		whodiditell := ""
 		if history[i].Model != qa.Modelname {
@@ -45,7 +45,7 @@ func AskDeepSeek(
 	// ユーザーの質問を追加
 	msgs = append(msgs, map[string]string{"role": "user", "content": qa.Question})
 
-	payload := map[string]interface{}{
+	payload := map[string]any{
 		// "model": "deepseek-chat", // 使用するモデルを指定
 		"model": qa.Modelname, // 使用するモデルを指定
 		/*
@@ -118,7 +118,7 @@ func AskDeepSeek(
 	qa.Otokens = res.Usage.CompletionTokens
 
 	// レスポンスをパース
-	var result map[string]interface{}
+	var result map[string]any
 	if err = json.Unmarshal(body, &result); err != nil {
 		err = fmt.Errorf("error unmarshalling response: %v", err)
 		printJSON(body)
@@ -126,9 +126,9 @@ func AskDeepSeek(
 	}
 
 	// 回答を取得
-	if choices, ok := result["choices"].([]interface{}); ok && len(choices) > 0 {
-		if choice, ok := choices[0].(map[string]interface{}); ok {
-			if message, ok := choice["message"].(map[string]interface{}); ok {
+	if choices, ok := result["choices"].([]any); ok && len(choices) > 0 {
+		if choice, ok := choices[0].(map[string]any); ok {
+			if message, ok := choice["message"].(map[string]any); ok {
 				if qa.Answer, ok = message["content"].(string); ok {
 					return
 				}

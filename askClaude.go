@@ -65,7 +65,7 @@ func askClaude(
 	var msgs []Message
 
 	// Q&Aの履歴を追加
-	for i := 0; i < len(history); i++ {
+	for i := range history {
 		whotoldme := ""
 		whodiditell := ""
 		if history[i].Model != qa.Modelname {

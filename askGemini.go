@@ -4,6 +4,7 @@ import (
 	// "bytes"
 	// "encoding/json"
 	"fmt"
+	"strings"
 	// "io"
 	"log"
 	// "net/http"
@@ -100,7 +101,7 @@ func askGemini(
 	uq := make([]*genai.Content, 0)
 
 	// Q&Aの履歴を追加
-	for i := 0; i < len(history); i++ {
+	for i := range history {
 		whotoldme := ""
 		whodiditell := ""
 		if history[i].Model != qa.Modelname {
@@ -167,12 +168,12 @@ func askGemini(
 	content = *candidates[0].Content
 	parts := content.Parts
 	log.Printf("parts=%+v\n", parts)
-	text := ""
+	var text strings.Builder
 	for _, part := range parts {
-		text += part.Text
+		text.WriteString(part.Text)
 	}
-	log.Printf("Text: %s", text)
-	qa.Answer = text
+	log.Printf("Text: %s", text.String())
+	qa.Answer = text.String()
 
 	// 2. usageMetadata の値を取得
 	log.Printf("Prompt Token Count: %d", result.UsageMetadata.PromptTokenCount)

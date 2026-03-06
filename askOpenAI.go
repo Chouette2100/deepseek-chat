@@ -40,15 +40,15 @@ type OpenaiResponse struct {
 type Choice struct {
 	Index        int           `json:"index"`
 	Message      OaiResMessage `json:"message"`
-	Logprobs     interface{}   `json:"logprobs"` // 具体的な型が分かる場合は指定
+	Logprobs     any           `json:"logprobs"` // 具体的な型が分かる場合は指定
 	FinishReason string        `json:"finish_reason"`
 }
 
 type OaiResMessage struct {
-	Role        string        `json:"role"`
-	Content     string        `json:"content"`
-	Refusal     interface{}   `json:"refusal"`     // 具体的な型が分かる場合は指定
-	Annotations []interface{} `json:"annotations"` // 具体的な型が分かる場合は指定
+	Role        string `json:"role"`
+	Content     string `json:"content"`
+	Refusal     any    `json:"refusal"`     // 具体的な型が分かる場合は指定
+	Annotations []any  `json:"annotations"` // 具体的な型が分かる場合は指定
 }
 
 type OaiResUsage struct {
@@ -90,7 +90,7 @@ func askOpenAI(
 	}
 
 	// Q&Aの履歴を追加
-	for i := 0; i < len(history); i++ {
+	for i := range history {
 		whotoldme := ""
 		whodiditell := ""
 		if history[i].Model != qa.Modelname {

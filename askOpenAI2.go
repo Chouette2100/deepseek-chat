@@ -38,7 +38,7 @@ func askOpenAI2(
 	}
 
 	// Q&Aの履歴を追加
-	for i := 0; i < len(history); i++ {
+	for i := range history {
 		whotoldme := ""
 		whodiditell := ""
 		if history[i].Model != qa.Modelname {
@@ -54,9 +54,9 @@ func askOpenAI2(
 
 	// リクエストの作成
 	request := Openai2Request{
-		Model:       qa.Modelname,
-		Messages:    msgs,
-		MaxCompletionTokens:   qa.Maxtokens,
+		Model:               qa.Modelname,
+		Messages:            msgs,
+		MaxCompletionTokens: qa.Maxtokens,
 	}
 
 	// JSONに変換

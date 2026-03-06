@@ -142,7 +142,7 @@ func ValidateJWT(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		claims := &jwt.RegisteredClaims{}
-		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (any, error) {
 			return jwtKey, nil
 		})
 		if err != nil || !token.Valid {
@@ -289,10 +289,7 @@ func HandlerDschat(
 			err = srdblib.Dbmap.SelectOne(&maxID, "SELECT MAX(id) FROM qa_records")
 			if err == nil {
 				// IDが降順(DESC)で表示されているため、最新IDからの差分でオフセットを計算
-				offset := maxID - int64(top.StartID)
-				if offset < 0 {
-					offset = 0
-				}
+				offset := max(maxID-int64(top.StartID), 0)
 				page = int(offset/pageSize) + 1
 			}
 		}
@@ -330,7 +327,7 @@ func HandlerDschat(
 	top.Target = r.FormValue("target")
 
 	// for i := 9; i >= 0; i-- {
-	for i := 0; i < pageSize; i++ { // id=3242 gemini-2.5-flash-lite-preview-09-2025
+	for i := range pageSize { // id=3242 gemini-2.5-flash-lite-preview-09-2025
 		it := r.FormValue(fmt.Sprintf("checkbox%d", i))
 		if it == "on" {
 			history = append(history,
@@ -391,7 +388,7 @@ func HandlerDschat(
 	}
 
 	offset := (page - 1) * pageSize
-	var intf []interface{}
+	var intf []any
 	clmlist["qa_recordsDB"] = " id, timestamp, responsetime, modelname, maxtokens, temperature, `system`, question, answer, itokens, otokens, stopreason "
 	sqlst := ""
 	if top.Target == "" {

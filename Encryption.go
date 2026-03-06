@@ -29,7 +29,7 @@ func init() {
 		panic("ENCRYPTION_KEY_HEX must be a 64-character hexadecimal string")
 	}
 	encryptionKey = make([]byte, 32)
-	for i := 0; i < 32; i++ {
+	for i := range 32 {
 		var byteVal byte
 		_, err := fmt.Sscanf(keyHex[i*2:i*2+2], "%02x", &byteVal)
 		if err != nil {
