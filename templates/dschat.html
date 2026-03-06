@@ -96,7 +96,11 @@
         <textarea id="system" name='system' style='width: 40em;' rows='1'>{{.System}}</textarea>
         */}}
         <br><label for="question">質問:</label>
-        <textarea id="question" name='question' style='width: 60em; max-width: 85vw;' rows='1'></textarea>
+        <div style="display: flex; align-items: flex-start;">
+            <textarea id="question" name='question' style='width: 60em; max-width: 85vw;' rows='1'></textarea>
+            <div id="md_question" class="markdown-body"></div>
+            <button type="button" id="btn_question" onclick="toggleMD('question')" style="margin-left: 10px;">MD変換</button>
+        </div>
         <br><button type="submit">送信</button>
         {{ end }}
         <hr>
@@ -203,13 +207,32 @@
                 rawValue = rawValue.replace(/([^\s\w])\*\*/g, '$1\u200B**');
                 rawValue = rawValue.replace(/\*\*([^\s\w])/g, '**\u200B$1');
 
-                markdownDiv.innerHTML = marked.parse(rawValue);
+                // 数式部分を退避させて Markdown パースの影響を完全に排除する
+                const mathBlocks = [];
+                // \[ ... \] と \( ... \) と $$...$$ と $...$ を抽出
+                rawValue = rawValue.replace(/(\\\[[\s\S]*?\\\]|\\\(.*?\\\))|(\$\$[\s\S]*?\$\$|\$.*?\$)/g, (match) => {
+                    const placeholder = `MATH_PLACEHOLDER_${mathBlocks.length}`;
+                    mathBlocks.push(match);
+                    return placeholder;
+                });
+
+                // Markdownパース
+                let parsedHTML = marked.parse(rawValue);
+
+                // 退避させた数式を戻す
+                mathBlocks.forEach((math, index) => {
+                    parsedHTML = parsedHTML.replace(`MATH_PLACEHOLDER_${index}`, math);
+                });
+
+                markdownDiv.innerHTML = parsedHTML;
                 
                 // KaTeXによる数式レンダリング (Markdown変換後の要素に対して適用)
                 renderMathInElement(markdownDiv, {
                     delimiters: [
                         {left: "$$", right: "$$", display: true},
-                        {left: "$", right: "$", display: false}
+                        {left: "$", right: "$", display: false},
+                        {left: "\\(", right: "\\)", display: false},
+                        {left: "\\[", right: "\\]", display: true}
                     ],
                     throwOnError: false
                 });

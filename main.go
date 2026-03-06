@@ -47,9 +47,10 @@ import (
 001300  IDを指定するとそのIDが含まれるページに移動する。
 001400  Markdown変換表示を行えるようにする。
 001401  数式描画にKaTeXを使えるようにする。
+001402  数式処理のブロック表示に対応し、Questionの入力でMD変換表示を行えるようにする。
 */
 
-const version = "001401"
+const version = "001402"
 
 type CustomTime time.Time
 
