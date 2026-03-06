@@ -208,8 +208,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 		// Validate email and password with database (pseudo-code)
-		// if email == "test@example.com" && password == "password" {
-		if email == "iapetus@seppina.com" && password == "sfbsfbsfb78" {
+		var user User
+		itfc, err := srdblib.Dbmap.Get(&user, email)
+		if err != nil {
+			err = fmt.Errorf("Database error. err = %w", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if itfc == nil {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+		user = *itfc.(*User)
+		if !CheckPasswordHash(password, user.Pswd) {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		} else {
 			token, err := GenerateJWT(email)
 			if err != nil {
 				http.Error(w, "Failed to generate token", http.StatusInternalServerError)
@@ -229,9 +243,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			})
 			// http.Redirect(w, r, "/", http.StatusSeeOther)
 			http.Redirect(w, r, "/dschat", http.StatusSeeOther)
-			return
 		}
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 	http.ServeFile(w, r, "templates/login.html")

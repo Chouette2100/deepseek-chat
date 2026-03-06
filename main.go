@@ -48,13 +48,16 @@ import (
 001400  Markdown変換表示を行えるようにする。
 001401  数式描画にKaTeXを使えるようにする。
 001402  数式処理のブロック表示に対応し、Questionの入力でMD変換表示を行えるようにする。
+001500  ログイン情報は暗号化してDBに保存するようにする。
+001600  ログイン情報の保存をbcryptによるハッシュに変更する。
 */
 
-const version = "001402"
+const version = "001600"
 
 type CustomTime time.Time
 
 func (ct CustomTime) MarshalJSON() ([]byte, error) {
+
 	return []byte(`"` + time.Time(ct).Format("2006-01-02 15:04:05") + `"`), nil
 }
 

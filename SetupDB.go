@@ -1,10 +1,18 @@
 package main
 
 import (
+	"log"
+	"time"
+
 	"github.com/Chouette2100/srdblib/v2"
 	"github.com/go-gorp/gorp"
-	"log"
 )
+
+type User struct {
+	Email string
+	Pswd  string
+	Ts    time.Time
+}
 
 // Desc: データベース接続を設定する
 func SetupDB() (err error) {
@@ -26,6 +34,7 @@ func SetupDB() (err error) {
 		ExpandSliceArgs: true, //スライス引数展開オプションを有効化する
 	}
 	srdblib.Dbmap.AddTableWithName(Qa_recordsDB{}, "qa_records").SetKeys(true, "Id")
+	srdblib.Dbmap.AddTableWithName(User{}, "user").SetKeys(true, "Email")
 	// <<<<<<<<<<<<<<<<<<<<
 
 	return
