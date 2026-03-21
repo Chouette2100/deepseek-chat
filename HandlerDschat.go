@@ -249,6 +249,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/login.html")
 }
 
+var maxstartid int
+
 func HandlerDschat(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -258,42 +260,49 @@ func HandlerDschat(
 	history = make([]qah, 0)
 
 	pageStr := r.FormValue("action")
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page < 1 {
-		page = 1
-	}
+	currentID, _ := strconv.Atoi(r.FormValue("startid"))
 
+	var err error
 	type Top struct {
-		Qa           Qa_recordsDB
-		Qalist       []Qa_recordsDB
-		SIselected   string
-		Modellist    []Modeltype
-		Target       string
-		HasNext      bool
-		HasPrevious  bool
-		NextPage     int
-		PreviousPage int
-		Stmp         string
-		Systemkeys   []string
-		StartID      int
+		Qa          Qa_recordsDB
+		Qalist      []Qa_recordsDB
+		SIselected  string
+		Modellist   []Modeltype
+		Target      string
+		HasNext     bool
+		HasPrevious bool
+		NextID      int
+		PreviousID  int
+		Stmp        string
+		Systemkeys  []string
+		StartID     int
 	}
 	top := Top{}
 
-	top.StartID, _ = strconv.Atoi(r.FormValue("startid"))
-	if top.StartID > 0 && pageStr == "" {
-		// IDが入力され、かつ「前へ/次へ」ボタンが押されていない場合、そのIDを含むページを表示する
-		var totalRecords int64
-		err = srdblib.Dbmap.SelectOne(&totalRecords, "SELECT COUNT(*) FROM qa_records")
-		if err == nil {
-			var maxID int64
-			err = srdblib.Dbmap.SelectOne(&maxID, "SELECT MAX(id) FROM qa_records")
-			if err == nil {
-				// IDが降順(DESC)で表示されているため、最新IDからの差分でオフセットを計算
-				offset := max(maxID-int64(top.StartID), 0)
-				page = int(offset/pageSize) + 1
-			}
-		}
+	var maxID int64
+	err = srdblib.Dbmap.SelectOne(&maxID, "SELECT MAX(id) FROM qa_records")
+	if err != nil {
+		maxID = 0
 	}
+
+	if currentID == 0 {
+		currentID = int(maxID)
+	}
+
+	switch pageStr {
+	case "next":
+		currentID -= pageSize
+	case "previous":
+		currentID += pageSize
+	}
+
+	if currentID < 1 {
+		currentID = 1
+	}
+	if currentID > int(maxID) {
+		currentID = int(maxID)
+	}
+	top.StartID = currentID
 
 	for _, key := range modelkeys {
 		mt := modellist[key]
@@ -340,6 +349,7 @@ func HandlerDschat(
 	}
 
 	if question != "" {
+		top.StartID = int(maxID) + 1
 		top.Qa.Question = question
 		apiKey := venderlist[modellist[top.Qa.Modelname].Vendor].Apikey
 		url := venderlist[modellist[top.Qa.Modelname].Vendor].Url
@@ -387,18 +397,17 @@ func HandlerDschat(
 		}
 	}
 
-	offset := (page - 1) * pageSize
-	var intf []any
 	clmlist["qa_recordsDB"] = " id, timestamp, responsetime, modelname, maxtokens, temperature, `system`, question, answer, itokens, otokens, stopreason "
 	sqlst := ""
+	var intf []any
 	if top.Target == "" {
-		sqlst = "SELECT " + clmlist["qa_recordsDB"] + " FROM qa_records ORDER BY id DESC LIMIT ? OFFSET ? "
-		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, pageSize, offset)
+		sqlst = "SELECT " + clmlist["qa_recordsDB"] + " FROM qa_records WHERE id <= ? ORDER BY id DESC LIMIT ? "
+		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, top.StartID, pageSize)
 	} else {
 		sqlst = "SELECT " + clmlist["qa_recordsDB"] + " FROM qa_records "
-		sqlst += " WHERE MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE) "
-		sqlst += " ORDER BY id DESC LIMIT ? OFFSET ? "
-		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, top.Target, pageSize, offset)
+		sqlst += " WHERE id <= ? AND MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE) "
+		sqlst += " ORDER BY id DESC LIMIT ? "
+		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, top.StartID, top.Target, pageSize)
 	}
 	if err != nil {
 		err = fmt.Errorf("Select() Database error. err = %w", err)
@@ -412,29 +421,23 @@ func HandlerDschat(
 		top.Qalist = append(top.Qalist, *v.(*Qa_recordsDB))
 	}
 
-	if page > 1 {
+	if top.StartID < int(maxID) {
 		top.HasPrevious = true
-		top.PreviousPage = page - 1
 	}
 
-	var totalRecords int64
-	if top.Target == "" {
-		err = srdblib.Dbmap.SelectOne(&totalRecords, "SELECT COUNT(*) FROM qa_records")
-	} else {
-		err = srdblib.Dbmap.SelectOne(&totalRecords,
-			"SELECT COUNT(*) FROM qa_records WHERE MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE)",
-			top.Target)
-	}
-	if err != nil {
-		err = fmt.Errorf("SelectOne() Database error. err = %w", err)
-		log.Printf("%s\n", err.Error())
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	if offset+pageSize < int(totalRecords) {
-		top.HasNext = true
-		top.NextPage = page + 1
+	if len(top.Qalist) > 0 {
+		lastID := top.Qalist[len(top.Qalist)-1].Id
+		var countBelow int64
+		if top.Target == "" {
+			err = srdblib.Dbmap.SelectOne(&countBelow, "SELECT COUNT(*) FROM qa_records WHERE id < ?", lastID)
+		} else {
+			err = srdblib.Dbmap.SelectOne(&countBelow,
+				"SELECT COUNT(*) FROM qa_records WHERE id < ? AND MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE)",
+				lastID, top.Target)
+		}
+		if err == nil && countBelow > 0 {
+			top.HasNext = true
+		}
 	}
 
 	funcMap := template.FuncMap{
