@@ -93,6 +93,7 @@ func LoadConfig(filename string) error {
 		systemlist[key] = val
 		systemkeys = append(systemkeys, key)
 	}
+	// log.Print(systemlist["NixOS"])
 
 	venderlist = config.Venderlist
 
@@ -365,6 +366,8 @@ func HandlerDschat(
 			err = askOpenAI(&top.Qa, history, url, apiKey)
 		case "openai2":
 			err = askOpenAI2(&top.Qa, history, url, apiKey)
+		case "moonshot":
+			err = askMoonshot(&top.Qa, history, url, apiKey)
 		default:
 			err = fmt.Errorf("invalid modelname: %s", top.Qa.Modelname)
 			log.Printf("%s\n", err.Error())

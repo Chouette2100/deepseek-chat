@@ -53,9 +53,10 @@ import (
 001700  go 1.26.1 で go fix ./... を実行する。
 001800 ページネーションの仕組みを、従来のページ番号ベースから id を基準とした方式に変更する。
 001801 質疑があるときはstartidをmaxID+1とする
+001900  moonshot.aiのAPIを使う機能を作成する
 */
 
-const version = "001801"
+const version = "001900"
 
 type CustomTime time.Time
 

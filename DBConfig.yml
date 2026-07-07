@@ -6,6 +6,9 @@
 #DBhost: 127.0.0.1
 #DBport: 9999
 
+DBhost: 127.0.0.1
+DBport: 9910
+
 # データベース名
 DBname:	${DBNAME}
 

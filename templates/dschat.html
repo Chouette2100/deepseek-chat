@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenAI Q&A</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -24,6 +25,9 @@
         .markdown-body pre {
             background-color: #eee;
             padding: 5px;
+            overflow-x: auto;
+        }
+        .markdown-body .mermaid {
             overflow-x: auto;
         }
     </style>
@@ -79,6 +83,7 @@
             <option value="0.7" {{ if eq $t "0.7" }}selected{{ end }}>0.7</option>
         </select>
 
+        {{/*
         <br>
         <label for="system">System Instruction:</label>
         <input type="radio" id="systemA" name="system" value="none" {{ if eq $s "none" }}checked{{ end }}>
@@ -91,6 +96,8 @@
         <label for="systemD">Arduino</label>
         <input type="radio" id="systemE" name="system" value="OPi" {{ if eq $s "OPi" }}checked{{ end }}>
         <label for="systemD">OPi</label>
+        */}}
+
         {{/*
         <br><label for="system">編集:</label>
         <textarea id="system" name='system' style='width: 40em;' rows='1'>{{.System}}</textarea>
@@ -185,6 +192,32 @@
             silent: true
         });
 
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: 'loose'
+        });
+
+        function renderMermaidInElement(container, id) {
+            const mermaidCodeBlocks = container.querySelectorAll('pre code.language-mermaid, pre code.lang-mermaid');
+            mermaidCodeBlocks.forEach((codeBlock, index) => {
+                const pre = codeBlock.parentElement;
+                if (!pre) {
+                    return;
+                }
+
+                const mermaidDiv = document.createElement('div');
+                mermaidDiv.className = 'mermaid';
+                mermaidDiv.id = `mermaid_${id}_${index}`;
+                mermaidDiv.textContent = codeBlock.textContent;
+                pre.replaceWith(mermaidDiv);
+            });
+
+            const mermaidNodes = container.querySelectorAll('.mermaid');
+            if (mermaidNodes.length > 0) {
+                mermaid.run({ nodes: mermaidNodes });
+            }
+        }
+
         function toggleMD(id) {
             const textarea = document.getElementById(id);
             const markdownDiv = document.getElementById('md_' + id);
@@ -230,6 +263,9 @@
                     ],
                     throwOnError: false
                 });
+
+                // Mermaidコードブロックがある場合に図として描画する
+                renderMermaidInElement(markdownDiv, id);
 
                 textarea.style.display = 'none';
                 markdownDiv.style.display = 'block';
