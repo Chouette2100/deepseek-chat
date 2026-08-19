@@ -12,15 +12,17 @@ import (
 	"net/http"
 
 	// "net/smtp"
-	"os"
+	// "os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/Chouette2100/srdblib/v2"
+	// "github.com/Chouette2100/srdblib/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gopkg.in/yaml.v2"
+
+	"github.com/Chouette2100/exsrapi/v2"
 )
 
 type qah struct {
@@ -47,7 +49,9 @@ type Venderinf struct {
 type Config struct {
 	Systemlist yaml.MapSlice        `yaml:"systemlist"`
 	Venderlist map[string]Venderinf `yaml:"venderlist"`
-	Modellist  yaml.MapSlice        `yaml:"modellist"`
+	// Modellist  yaml.MapSlice        `yaml:"modellist"`
+	Modellist  map[string]Modeltype `yaml:"modellist"`
+	EncKey string `yaml:"enckey"`
 }
 
 // システムプロンプトの定義
@@ -64,8 +68,11 @@ var modelkeys []string
 var jwtKey = []byte("your_secret_key")
 var verificationCodes = sync.Map{} // To store email verification codes temporarily
 
+var config Config
+
 // LoadConfig loads configuration from YAML file
-func LoadConfig(filename string) error {
+func LoadConfig(filename string) (err error) {
+	/*
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return fmt.Errorf("failed to read config file: %w", err)
@@ -76,7 +83,13 @@ func LoadConfig(filename string) error {
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal config: %w", err)
 	}
+	*/
+	err = exsrapi.LoadConfig(filename, &config)
+	if err != nil {
+		return fmt.Errorf("failed to read config file: %w", err)
+	}
 
+	/*
 	// 環境変数からAPIキーを設定
 	for vendor, venderInf := range config.Venderlist {
 		if key := os.Getenv(venderInf.EvAPI); key != "" {
@@ -84,6 +97,7 @@ func LoadConfig(filename string) error {
 			config.Venderlist[vendor] = venderInf
 		}
 	}
+	*/
 
 	systemlist = make(map[string]string)
 	systemkeys = make([]string, 0)
@@ -99,14 +113,12 @@ func LoadConfig(filename string) error {
 
 	modellist = make(map[string]Modeltype)
 	modelkeys = make([]string, 0)
-	for _, item := range config.Modellist {
-		key := item.Key.(string)
-		valByte, _ := yaml.Marshal(item.Value)
-		var mt Modeltype
-		yaml.Unmarshal(valByte, &mt)
+	for key, mt := range config.Modellist {
 		modellist[key] = mt
 		modelkeys = append(modelkeys, key)
 	}
+
+	keyInit() // Initialize the encryption key
 
 	return nil
 }
@@ -210,7 +222,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		// Validate email and password with database (pseudo-code)
 		var user User
-		itfc, err := srdblib.Dbmap.Get(&user, email)
+		itfc, err := dbmap.Get(&user, email)
 		if err != nil {
 			err = fmt.Errorf("Database error. err = %w", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -281,7 +293,7 @@ func HandlerDschat(
 	top := Top{}
 
 	var maxID int64
-	err = srdblib.Dbmap.SelectOne(&maxID, "SELECT MAX(id) FROM qa_records")
+	err = dbmap.SelectOne(&maxID, "SELECT MAX(id) FROM qa_records")
 	if err != nil {
 		maxID = 0
 	}
@@ -390,7 +402,7 @@ func HandlerDschat(
 			top.Qa.Question += history[i].Sid
 		}
 
-		err = srdblib.Dbmap.Insert(&top.Qa)
+		err = dbmap.Insert(&top.Qa)
 		top.Qa.Question = qbu
 		if err != nil {
 			err = fmt.Errorf("Insert() Database error. err = %w", err)
@@ -405,12 +417,12 @@ func HandlerDschat(
 	var intf []any
 	if top.Target == "" {
 		sqlst = "SELECT " + clmlist["qa_recordsDB"] + " FROM qa_records WHERE id <= ? ORDER BY id DESC LIMIT ? "
-		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, top.StartID, pageSize)
+		intf, err = dbmap.Select(&Qa_recordsDB{}, sqlst, top.StartID, pageSize)
 	} else {
 		sqlst = "SELECT " + clmlist["qa_recordsDB"] + " FROM qa_records "
 		sqlst += " WHERE id <= ? AND MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE) "
 		sqlst += " ORDER BY id DESC LIMIT ? "
-		intf, err = srdblib.Dbmap.Select(&Qa_recordsDB{}, sqlst, top.StartID, top.Target, pageSize)
+		intf, err = dbmap.Select(&Qa_recordsDB{}, sqlst, top.StartID, top.Target, pageSize)
 	}
 	if err != nil {
 		err = fmt.Errorf("Select() Database error. err = %w", err)
@@ -432,9 +444,9 @@ func HandlerDschat(
 		lastID := top.Qalist[len(top.Qalist)-1].Id
 		var countBelow int64
 		if top.Target == "" {
-			err = srdblib.Dbmap.SelectOne(&countBelow, "SELECT COUNT(*) FROM qa_records WHERE id < ?", lastID)
+			err = dbmap.SelectOne(&countBelow, "SELECT COUNT(*) FROM qa_records WHERE id < ?", lastID)
 		} else {
-			err = srdblib.Dbmap.SelectOne(&countBelow,
+			err = dbmap.SelectOne(&countBelow,
 				"SELECT COUNT(*) FROM qa_records WHERE id < ? AND MATCH(question, answer) AGAINST( ? IN BOOLEAN MODE)",
 				lastID, top.Target)
 		}

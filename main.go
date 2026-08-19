@@ -16,7 +16,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srcom"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 /*
@@ -54,9 +54,10 @@ import (
 001800 ページネーションの仕組みを、従来のページ番号ベースから id を基準とした方式に変更する。
 001801 質疑があるときはstartidをmaxID+1とする
 001900  moonshot.aiのAPIを使う機能を作成する
+002002  認証情報をsops暗号化する
 */
 
-const version = "001900"
+const version = "002002"
 
 type CustomTime time.Time
 
@@ -93,6 +94,7 @@ type Qa_recordsDB struct {
 	StopReason   string    `json:"stop_reason"`
 }
 
+/*
 func init() {
 	// vederlistのApikeyを環境変数から取得
 	for k := range venderlist {
@@ -101,6 +103,7 @@ func init() {
 		venderlist[k] = v
 	}
 }
+*/
 
 var clmlist map[string]string = map[string]string{}
 
@@ -151,7 +154,7 @@ func main() {
 	log.Printf("%+v\n", svconfig)
 
 	// 設定ファイルを読み込み
-	err = LoadConfig("config.yml")
+	err = LoadConfig("config.enc.yml")
 	if err != nil {
 		log.Printf("LoadConfig() error. err = %v\n", err)
 		os.Exit(1)
@@ -162,7 +165,7 @@ func main() {
 	if err != nil {
 		log.Printf("SetupDB() error. err = %v\n", err)
 	}
-	defer srdblib.Db.Close()
+	defer db.Close()
 
 	http.HandleFunc("/dschat", ValidateJWT(HandlerDschat))
 	http.HandleFunc("/signup", SignupHandler)

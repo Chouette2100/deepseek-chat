@@ -1,0 +1,123 @@
+systemlist:
+    none: 'いろんなことに興味があります。環境はNixOS26.05 KDE Plasma6, Ubuntu Server 24.04.02, FreeBSD 14.4です。ESP32Forth v7.0.7.21, Orange Pi Zero 3 Armbianでも遊んでいます '
+    NixOS: "LinuxMint22.3からNixOS26.05 KDE Plasma6へ移行しました。NixOSは経験がなかったのでなかなかたいへんでしたが、なんとか移行を完了しました。 \n 構成要素（vscode/go/mysql, LibreOffice, Gimp/Incscape, Qemu/KVM(Windows11Pro), Incus, distrobox/ubuntu(Windows版LINEなど), Joplin/Obsidian） \n 設定ファイルは以下のように機能ごとに分割して作成しています。 \n ``` \n   flake.nix \n cofiguration.nix \n hardware-configuration.nix \n home.nix # Home Manager設定 \n modules/ \n ├── desktop.nix      # デスクトップ環境(Radeon RX 6400を含む) \n ├── filesystems.nix  # ファイルシステム(btrfs)設定 \n ├── containers.nix   # コンテナ設定(incus, distrobox) \n ├── qemukvm.nix      # 仮想環境KVM)設定 \n ├── networking.nix   # ネットワーク設定 \n └── service.nix      # サービス設定 \n └── system.nix       # システム設定 \n └── backup.nix       # MySQLバックアップ設定 \n └── printer.nix      # プリンタ設定(ipp everywhere) \n └── neovim/ \n .     └── default.nix \n .     └── opts.nix       # 基本設定 \n .     └── keymaps.nix    # キーマップ設定 \n .     └── plugin.nix     # プラグイン設定 \n ``` \n "
+    Go: あなたはGoのエクスパート。開発環境はNixOS26.05、実行環境はubuntu server 24.04.2 LTS、Go1.26.3、net/http+go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス。
+    ESP32: LinuxMint22.3上でvscode+PlatformIO+ESP-IDFを使ってプログラムを開発します。ただしESP32forthだけはArduino IDEでコンパイルしています。ボードはESP32-WROOM32とESP32-S3です。
+    Arduino: あなたは Arduino のエキスパート。開発にはvscode+PlatformIOを使っています。
+    OPi: あなたは Orange Pi Zero 3のエキスパート。OSはArmbianで開発はGo 1.25.5 + 1 Periph.io(LinuxMint vscodeでクロスコンパイル、delveでデバッグ)を使っています。
+    Mineclonia: '`minetest-server` をNixOSで起動することによって`Luanti - Mineclonia`を遊んでいます。`enable_damage = false, creative_mode = true`として、建築を楽しんでいます。modはworldedit等を使っています。red stoneによる自動化や遠隔操作にも興味があります'
+venderlist:
+    Google:
+        evapi: GOOGLE_API_KEY
+        apikey: ENC[AES256_GCM,data:crjWzSnu2DVZSJGPpp1fudScDQax3ojlMw4r5p3COTE0VkGTfue6,iv:sPMOzer9Wct3u2cIC2VMdcVNFFxkW+yY52yHPFYSCJE=,tag:h62ImPqP04ypaG9s83cwpA==,type:str] # seppina
+        url: https://generativelanguage.googleapis.com/v1beta/models/
+    Anthropic:
+        evapi: CLAUDE_API_KEY
+        apikey: ENC[AES256_GCM,data:WqQnBdAcPs081YtsTagDXDEv8VZ2feyCNOVzQz5e+YhHYdbHgVvGUebBOXR6OHv9xGaiIV1KdJMSRM5ROtGXDmBsW9Hmyi622gWJxyvWebVId1IqY3j+GJYpZBGAhdSoJh5uC/snttOQRfxW,iv:YwQEgDa9Z80JqPY83noVntDAElDBKygMMR//D5pOB1c=,tag:8sHsbqStnqEX5iiH+QhQIw==,type:str]
+        url: https://api.anthropic.com/v1/messages
+    DeepSeek:
+        evapi: DEEPSEEK_API_KEY
+        apikey: ENC[AES256_GCM,data:OHutGSSWaQ4ocjoz+ainq6CP86pIIO8iTeKjeG9SPiKargo=,iv:mJZkUxlH/VViy+qLagzsXYgk7//gSmFfRJOvauMhkf8=,tag:nslkeKwmYJwhdbLBiCktJw==,type:str]
+        url: https://api.deepseek.com/v1/chat/completions
+    OpenAI:
+        evapi: OPENAI_API_KEY
+        apikey: ENC[AES256_GCM,data:wJPd2QpsG/VXWTBfnoP1oiRzBTSR6hBJM9D5fdB87Zoerrpx04AqgDd/0p5+g3GkEcKVfg+lIUijTMgCxyNao+U6bqAig5oijHDlj6Y48aH052snyZBB/4DfI6zMj0KTLd6Acef1QbVlYeGgRtS/BfajXqII9XOKzYLn+I50X8IhrVXU6mxnYuIPPgu+M467A5Dxyf/TmvRJum9U+4k8aiN20EM=,iv:cb5F2kAoEZaZesa9GhiIxKsiFvtpz94kndwbUfP7g3w=,tag:5LCR4ggT4EdQ1uIl7MN3kw==,type:str]
+        url: https://api.openai.com/v1/chat/completions
+    Moonshot:
+        evapi: MOONSHOT_API_KEY
+        apikey: ENC[AES256_GCM,data:bpCj4j9F4dXOToA7uEYF0Lh1hYncqnP9Y+xEh1R6mTNkr6vh7JqmMj7s9q0j1121BWPD,iv:bc/QtxtjSpqfjJbWZjtIQnJz35iFSW5jdpNuFJ7PRzk=,tag:wRus0f5agQx0huhBXLCShA==,type:str]
+        url: https://api.moonshot.ai/v1/chat/completions
+modellist:
+    gemini-2.5-flash-lite-preview-09-2025:
+        comment: 0.4
+        model: gemini
+        vendor: Google
+    gemini-2.5-flash-lite:
+        comment: 0.4
+        model: gemini
+        vendor: Google
+    gemini-2.5-flash:
+        comment: 2.5
+        model: gemini
+        vendor: Google
+    gemini-2.5-pro:
+        comment: 10.00/15.00
+        model: gemini
+        vendor: Google
+    gemini-3-flash-preview:
+        comment: 3
+        model: gemini
+        vendor: Google
+    gemini-3-flash-lite-preview:
+        comment: 1.5
+        model: gemini
+        vendor: Google
+    gemini-3.1-pro-preview:
+        comment: 12.00/18.00
+        model: gemini
+        vendor: Google
+    claude-haiku-4-5-20251001:
+        comment: 5
+        model: claude
+        vendor: Anthropic
+    claude-sonnet-4.6:
+        comment: 15
+        model: claude
+        vendor: Anthropic
+    claude-opus-4-7:
+        comment: 25
+        model: claude
+        vendor: Anthropic
+    deepseek-v4-flash:
+        comment: 0.28
+        model: openai
+        vendor: DeepSeek
+    deepseek-v4-pro:
+        comment: 0.87/3.48
+        model: openai
+        vendor: DeepSeek
+    gpt-5.4-nano:
+        comment: 1.25
+        model: openai
+        vendor: OpenAI
+    gpt-5.4-mini:
+        comment: 4.5
+        model: openai
+        vendor: OpenAI
+    gpt-5.4:
+        comment: 15
+        model: openai2
+        vendor: OpenAI
+    kimi-k2.6:
+        comment: 4
+        model: moonshot
+        vendor: Moonshot
+    kimi-k2.7-code:
+        comment: 4
+        model: moonshot
+        vendor: Moonshot
+    kimi-k2.7-code-highspeed:
+        comment: 8
+        model: moonshot
+        vendor: Moonshot
+    kimi-k3:
+        comment: |
+            15.00
+        model: moonshot
+        vendor: Moonshot
+enckey: 2DE395975D5D5AD29A7D4CFD95F37ECE9F54D7E27FEF7D59EFF593C5E74C9F2C
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBrSU5mZVovSHJ0SDZBbWdK
+            WDZNMTBZS2pReWxuTHJnV21iUFBhVmtZemswCjZFaHpyMG1Qbm52L2lGVEVlendD
+            Q1Jra2RTVTM3aEd5K21VUFlEMmozQTgKLS0tIDBHZzdMQ0NRSjFNZDd1d0ZlbG5C
+            cXJVOGFYcHpOak1QSm1FZEliVjh5OFUKQrPi2A4FsvopnwK2IivjHuMZIiWoSjs9
+            oG/42FU8Iqn/ugILvvxWBiqZs5O3XSBYsUqdyYo4TImmZ4mycQ4joA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
+    encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex)$
+    lastmodified: "2026-08-19T13:19:15Z"
+    mac: ENC[AES256_GCM,data:awchgrGGSUtrrMzMfVueG3SWg4rN+WaQLitzKNC+12MqN9IQs1AOAOxx+aNZnq7jxyvOOfgwNkNGSpzliYVvmVDkEAR6YAUw5v7//Kh8+R/vFU0U99CULL6OIFEFmQg5R+BgtVaOK1I9WeMPwiZQd52UBotE4X+4+KB4Pb8BKuE=,iv:vHFsG6URR6rvq1A0drEOk3RoSSr/z0fOyvjwS0+W2D8=,tag:YBiPpqiOLgZEnR4kvbVOZg==,type:str]
+    version: 3.13.1

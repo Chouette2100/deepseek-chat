@@ -4,7 +4,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/Chouette2100/srdblib/v3"
 	"github.com/go-gorp/gorp"
 )
 
@@ -14,11 +17,15 @@ type User struct {
 	Ts    time.Time
 }
 
+var db *sql.DB
+var dbmap *gorp.DbMap
+
 // Desc: データベース接続を設定する
 func SetupDB() (err error) {
+	var dbconfig *srdblib.DBConfig
 	// >>>>>>>>>>>>>>>>>>>>>
 	// データベース接続
-	dbconfig, err := srdblib.OpenDb("DBConfig.yml")
+	db, dbconfig, err = srdblib.OpenDb("DBConfig.enc.yml")
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
 		return
@@ -29,12 +36,12 @@ func SetupDB() (err error) {
 	// defer srdblib.Db.Close() // ここで閉じると他のパッケージで使えなくなる
 
 	dial := gorp.MySQLDialect{Engine: "InnoDB", Encoding: "utf8mb4"}
-	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db,
+	dbmap = &gorp.DbMap{Db: db,
 		Dialect:         dial,
 		ExpandSliceArgs: true, //スライス引数展開オプションを有効化する
 	}
-	srdblib.Dbmap.AddTableWithName(Qa_recordsDB{}, "qa_records").SetKeys(true, "Id")
-	srdblib.Dbmap.AddTableWithName(User{}, "user").SetKeys(true, "Email")
+	dbmap.AddTableWithName(Qa_recordsDB{}, "qa_records").SetKeys(true, "Id")
+	dbmap.AddTableWithName(User{}, "user").SetKeys(true, "Email")
 	// <<<<<<<<<<<<<<<<<<<<
 
 	return
