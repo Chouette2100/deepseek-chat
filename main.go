@@ -55,9 +55,10 @@ import (
 001801 質疑があるときはstartidをmaxID+1とする
 001900  moonshot.aiのAPIを使う機能を作成する
 002002  認証情報をsops暗号化する
+002003  誤って削除したEncryption.goを復元し、init()をkeyInit()に変更する,VPS用のDBConfigを追加する。
 */
 
-const version = "002002"
+const version = "002003"
 
 type CustomTime time.Time
 
