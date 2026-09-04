@@ -1,6 +1,6 @@
 systemlist:
     none: 'いろんなことに興味があります。環境はNixOS26.05 KDE Plasma6, Ubuntu Server 24.04.02, FreeBSD 14.4です。ESP32Forth v7.0.7.21, Orange Pi Zero 3 Armbianでも遊んでいます '
-    NixOS: "LinuxMint22.3からNixOS26.05 KDE Plasma6へ移行しました。NixOSは経験がなかったのでなかなかたいへんでしたが、なんとか移行を完了しました。 \n 構成要素（vscode/go/mysql, LibreOffice, Gimp/Incscape, Qemu/KVM(Windows11Pro), Incus, distrobox/ubuntu(Windows版LINEなど), Joplin/Obsidian） \n 設定ファイルは以下のように機能ごとに分割して作成しています。 \n ``` \n   flake.nix \n cofiguration.nix \n hardware-configuration.nix \n home.nix # Home Manager設定 \n modules/ \n ├── desktop.nix      # デスクトップ環境(Radeon RX 6400を含む) \n ├── filesystems.nix  # ファイルシステム(btrfs)設定 \n ├── containers.nix   # コンテナ設定(incus, distrobox) \n ├── qemukvm.nix      # 仮想環境KVM)設定 \n ├── networking.nix   # ネットワーク設定 \n └── service.nix      # サービス設定 \n └── system.nix       # システム設定 \n └── backup.nix       # MySQLバックアップ設定 \n └── printer.nix      # プリンタ設定(ipp everywhere) \n └── neovim/ \n .     └── default.nix \n .     └── opts.nix       # 基本設定 \n .     └── keymaps.nix    # キーマップ設定 \n .     └── plugin.nix     # プラグイン設定 \n ``` \n "
+    NixOS: "LinuxMint22.3からNixOS26.05 KDE Plasma6へ移行しました。NixOSは経験がなかったのでなかなかたいへんでしたが、なんとか移行を完了しました。 \n 構成要素（vscode/go/mysql, LibreOffice, Gimp/Incscape, Qemu/KVM(Windows11Pro), Incus, distrobox/ubuntu(Windows版LINEなど), Joplin/Obsidian） \n 設定ファイルは以下のように機能ごとに分割して作成しています。 \n ``` \n   flake.nix \n   flake.lock \n cofiguration.nix \n hardware-configuration.nix \n home.nix # Home Manager設定 \n modules/ \n ├── desktop.nix      # デスクトップ環境(Radeon RX 6400を含む) \n ├── filesystems.nix  # ファイルシステム(btrfs)設定 \n ├── containers.nix   # コンテナ設定(incus, distrobox) \n ├── qemukvm.nix      # 仮想環境KVM)設定 \n ├── networking.nix   # ネットワーク設定 \n └── service.nix      # サービス設定 \n └── system.nix       # システム設定 \n └── backup.nix       # MySQLバックアップ設定 \n └── printer.nix      # プリンタ設定(ipp everywhere) \n └── user-timers/ \n .     └── default.nix \n .     └── jobs.nix \n ``` \n "
     Go: あなたはGoのエクスパート。開発環境はNixOS26.05、実行環境はubuntu server 24.04.2 LTS、Go1.26.3、net/http+go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス。
     ESP32: LinuxMint22.3上でvscode+PlatformIO+ESP-IDFを使ってプログラムを開発します。ただしESP32forthだけはArduino IDEでコンパイルしています。ボードはESP32-WROOM32とESP32-S3です。
     Arduino: あなたは Arduino のエキスパート。開発にはvscode+PlatformIOを使っています。
@@ -9,84 +9,76 @@ systemlist:
 venderlist:
     Google:
         evapi: GOOGLE_API_KEY
-        apikey: ENC[AES256_GCM,data:crjWzSnu2DVZSJGPpp1fudScDQax3ojlMw4r5p3COTE0VkGTfue6,iv:sPMOzer9Wct3u2cIC2VMdcVNFFxkW+yY52yHPFYSCJE=,tag:h62ImPqP04ypaG9s83cwpA==,type:str] # seppina
+        apikey: ENC[AES256_GCM,data:zrfWfoOwnxodxflXbrs8OnSAfg5OQMxXqzSun2nPitCKYgIwAI5M,iv:CxL0MpUOOUlgKG4HjzHZL5cuo/YV1+dCRLgL5OGIWDQ=,tag:pvTcMME+sLHPt1gNZq8Rbg==,type:str] # seppina
         url: https://generativelanguage.googleapis.com/v1beta/models/
     Anthropic:
         evapi: CLAUDE_API_KEY
-        apikey: ENC[AES256_GCM,data:WqQnBdAcPs081YtsTagDXDEv8VZ2feyCNOVzQz5e+YhHYdbHgVvGUebBOXR6OHv9xGaiIV1KdJMSRM5ROtGXDmBsW9Hmyi622gWJxyvWebVId1IqY3j+GJYpZBGAhdSoJh5uC/snttOQRfxW,iv:YwQEgDa9Z80JqPY83noVntDAElDBKygMMR//D5pOB1c=,tag:8sHsbqStnqEX5iiH+QhQIw==,type:str]
+        apikey: ENC[AES256_GCM,data:aZM0EJuCZWEEy3gfo6TpmFzL/EaVWFUljSuGkBPq8ULi1M/JybZTWXqaWnyCgvwcJDlZQ6DITK2JHX3+1M1SB5K5x5HHSmpqAqZ83yhQ5PP0eYj3EMbB07QaohpKqXvoSnHf0rp9E3c2mvx2,iv:ZsDjd0+Y9hkKBJ54/lVSEhq00h9G/OJp7ns8X7yuN9Y=,tag:Da890FHipZhwzI50rB4lXQ==,type:str]
         url: https://api.anthropic.com/v1/messages
     DeepSeek:
         evapi: DEEPSEEK_API_KEY
-        apikey: ENC[AES256_GCM,data:OHutGSSWaQ4ocjoz+ainq6CP86pIIO8iTeKjeG9SPiKargo=,iv:mJZkUxlH/VViy+qLagzsXYgk7//gSmFfRJOvauMhkf8=,tag:nslkeKwmYJwhdbLBiCktJw==,type:str]
+        apikey: ENC[AES256_GCM,data:K9YV4MweSVTmPs52HFfgdqpElqIEGWpqXYzS47v3pzjOOA8=,iv:1kedVSUrX5mnexgqv6HG8ssqbP9otBk87CNawZ0I3tI=,tag:6KSNZZP+Y5ebwv9QsqxdiA==,type:str]
         url: https://api.deepseek.com/v1/chat/completions
     OpenAI:
         evapi: OPENAI_API_KEY
-        apikey: ENC[AES256_GCM,data:wJPd2QpsG/VXWTBfnoP1oiRzBTSR6hBJM9D5fdB87Zoerrpx04AqgDd/0p5+g3GkEcKVfg+lIUijTMgCxyNao+U6bqAig5oijHDlj6Y48aH052snyZBB/4DfI6zMj0KTLd6Acef1QbVlYeGgRtS/BfajXqII9XOKzYLn+I50X8IhrVXU6mxnYuIPPgu+M467A5Dxyf/TmvRJum9U+4k8aiN20EM=,iv:cb5F2kAoEZaZesa9GhiIxKsiFvtpz94kndwbUfP7g3w=,tag:5LCR4ggT4EdQ1uIl7MN3kw==,type:str]
+        apikey: ENC[AES256_GCM,data:Ndj2mDJjOlf9SBuV57GPTpB4qn9GT41XU7WERZxiQqCRxCp5z7soYto+8k4V/hDflIVSGxTvv5eknqtYTFaIi8pASp+eRx/FouO6R4/p/osm9C61BvO/s19v0xZWUFd9L+OvldFi8/Smo9Vkqh9AzdMaCChjp4AWVsiiotc2dve2dVT69sP0N2LlRBGazfl8madOE6LIpyUtsgWbx6F3AJVgS1E=,iv:3Y4W9/zB4iK1TRjS2Jy/E6JEAGvgOcJVH10wS7wiaSM=,tag:7MWO7s0dbBMmCE2lOu0zeA==,type:str]
         url: https://api.openai.com/v1/chat/completions
     Moonshot:
         evapi: MOONSHOT_API_KEY
-        apikey: ENC[AES256_GCM,data:bpCj4j9F4dXOToA7uEYF0Lh1hYncqnP9Y+xEh1R6mTNkr6vh7JqmMj7s9q0j1121BWPD,iv:bc/QtxtjSpqfjJbWZjtIQnJz35iFSW5jdpNuFJ7PRzk=,tag:wRus0f5agQx0huhBXLCShA==,type:str]
+        apikey: ENC[AES256_GCM,data:pqDKFT17QjPH8R8veSSiTsC3WBx01+AEr3h620EyeUcVDPk5LjL8OgwgJiKYXbBXTPBa,iv:4SX/dZq1wLw1jCGT0YroZA/3MjWmjhZspZylpmt4nDo=,tag:CiJRqHwf34pThld69nShiQ==,type:str]
         url: https://api.moonshot.ai/v1/chat/completions
 modellist:
-    gemini-2.5-flash-lite-preview-09-2025:
-        comment: 0.4
+    gemini-3.1-flash-lite:
+        comment: 1.5
         model: gemini
         vendor: Google
-    gemini-2.5-flash-lite:
-        comment: 0.4
-        model: gemini
-        vendor: Google
-    gemini-2.5-flash:
+    gemini-3.5-flash-lite:
         comment: 2.5
-        model: gemini
-        vendor: Google
-    gemini-2.5-pro:
-        comment: 10.00/15.00
         model: gemini
         vendor: Google
     gemini-3-flash-preview:
         comment: 3
         model: gemini
         vendor: Google
-    gemini-3-flash-lite-preview:
-        comment: 1.5
+    gemini-3.6-flash:
+        comment: 7.5
         model: gemini
         vendor: Google
-    gemini-3.1-pro-preview:
-        comment: 12.00/18.00
+    gemini-3.5-flash:
+        comment: 9
         model: gemini
         vendor: Google
     claude-haiku-4-5-20251001:
         comment: 5
         model: claude
         vendor: Anthropic
-    claude-sonnet-4.6:
-        comment: 15
+    claude-sonnet-5:
+        comment: 10
         model: claude
         vendor: Anthropic
-    claude-opus-4-7:
+    claude-opus-4:
         comment: 25
         model: claude
         vendor: Anthropic
     deepseek-v4-flash:
-        comment: 0.28
+        comment: 0.66-1.32
         model: openai
         vendor: DeepSeek
     deepseek-v4-pro:
-        comment: 0.87/3.48
+        comment: 1.98/3.96
         model: openai
         vendor: DeepSeek
-    gpt-5.4-nano:
-        comment: 1.25
+    gpt-5.6-luna:
+        comment: 1.2
         model: openai
         vendor: OpenAI
-    gpt-5.4-mini:
-        comment: 4.5
-        model: openai
-        vendor: OpenAI
-    gpt-5.4:
-        comment: 15
+    gpt-5.6-terra:
+        comment: 12
         model: openai2
+        vendor: OpenAI
+    gpt-5.6-sol:
+        comment: 20
+        model: openai
         vendor: OpenAI
     kimi-k2.6:
         comment: 4
@@ -110,14 +102,14 @@ sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBrSU5mZVovSHJ0SDZBbWdK
-            WDZNMTBZS2pReWxuTHJnV21iUFBhVmtZemswCjZFaHpyMG1Qbm52L2lGVEVlendD
-            Q1Jra2RTVTM3aEd5K21VUFlEMmozQTgKLS0tIDBHZzdMQ0NRSjFNZDd1d0ZlbG5C
-            cXJVOGFYcHpOak1QSm1FZEliVjh5OFUKQrPi2A4FsvopnwK2IivjHuMZIiWoSjs9
-            oG/42FU8Iqn/ugILvvxWBiqZs5O3XSBYsUqdyYo4TImmZ4mycQ4joA==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRR3ZMQkxIODVOS1pwWFE2
+            bnk5bHRLRWs3Sk9kd2hMMkc1MkptRFdoMFg4ClRWbmFObDR3RjlRY0xQRDc4V3BD
+            M3dRanFGM29LbFhVWUx2eG5vK1JiQWsKLS0tIEp4Q1NwM1l0WUdjaXlsUmswd3Z0
+            T2FYQ3h5OGVJakZreGhvRVREdGt4ckEK2sIx1VjMrEGOrhulFesRS105Qr/n8Q2p
+            ml1AJGc7kHeseYEL5iKue6WiT5fxogn8UnEiguEEVsd/841T1J8yWg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
     encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex)$
-    lastmodified: "2026-08-19T13:19:15Z"
-    mac: ENC[AES256_GCM,data:awchgrGGSUtrrMzMfVueG3SWg4rN+WaQLitzKNC+12MqN9IQs1AOAOxx+aNZnq7jxyvOOfgwNkNGSpzliYVvmVDkEAR6YAUw5v7//Kh8+R/vFU0U99CULL6OIFEFmQg5R+BgtVaOK1I9WeMPwiZQd52UBotE4X+4+KB4Pb8BKuE=,iv:vHFsG6URR6rvq1A0drEOk3RoSSr/z0fOyvjwS0+W2D8=,tag:YBiPpqiOLgZEnR4kvbVOZg==,type:str]
+    lastmodified: "2026-08-24T02:30:54Z"
+    mac: ENC[AES256_GCM,data:kN+02Gy35YJpPywWu0ZpdCOuvGMbiSAZheJRcOI+v4jKgDkISWdAkPe3sIvf8AxQDYqrVLuB+bdcrRnHXKQOWwqul4itSjIOfGsS6Q5sQc6e6PuNaTEIgrPL8juU3X/ERNuW/mTYA55/GQv3T0jMjrQtMYM9QZgfX8JYzkH04vk=,iv:bWkogd003SPkysqbVk5Qd4S9/zyFjYaZQPM3JD6/g5g=,tag:5WPWpxwMKoRW34XfcC8bCw==,type:str]
     version: 3.13.1

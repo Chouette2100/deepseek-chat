@@ -10,6 +10,9 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
 
 	// "net/smtp"
 	// "os"
@@ -21,8 +24,7 @@ import (
 	// "github.com/Chouette2100/srdblib/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gopkg.in/yaml.v2"
-
-	"github.com/Chouette2100/exsrapi/v2"
+	// "github.com/Chouette2100/exsrapi/v2"
 )
 
 type qah struct {
@@ -49,8 +51,8 @@ type Venderinf struct {
 type Config struct {
 	Systemlist yaml.MapSlice        `yaml:"systemlist"`
 	Venderlist map[string]Venderinf `yaml:"venderlist"`
-	// Modellist  yaml.MapSlice        `yaml:"modellist"`
-	Modellist  map[string]Modeltype `yaml:"modellist"`
+	Modellist  yaml.MapSlice        `yaml:"modellist"`
+	// Modellist map[string]Modeltype `yaml:"modellist"`
 	EncKey string `yaml:"enckey"`
 }
 
@@ -69,34 +71,59 @@ var jwtKey = []byte("your_secret_key")
 var verificationCodes = sync.Map{} // To store email verification codes temporarily
 
 var config Config
+var content []byte
 
 // LoadConfig loads configuration from YAML file
-func LoadConfig(filename string) (err error) {
-	/*
-	file, err := os.ReadFile(filename)
-	if err != nil {
-		return fmt.Errorf("failed to read config file: %w", err)
+func LoadConfig(filePath string) (err error) {
+
+	if strings.Contains(filepath.Base(filePath), ".enc.") {
+		if os.Getenv("SOPS_AGE_KEY_FILE") == "" {
+			return fmt.Errorf("SOPS_AGE_KEY_FILE is empty")
+		}
+
+		content, err = exec.Command("sops", "--decrypt", filePath).Output()
+		if err != nil {
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				return fmt.Errorf("sops --decrypt failed: %w: %s", err, strings.TrimSpace(string(exitErr.Stderr)))
+			}
+			return fmt.Errorf("sops --decrypt failed: %w", err)
+		}
+	} else {
+		content, err = os.ReadFile(filePath)
+		if err != nil {
+			err = fmt.Errorf("os.ReadFile: %w", err)
+			return err
+		}
 	}
 
-	var config Config
-	err = yaml.Unmarshal(file, &config)
+	/*
+		content, err = os.ReadFile(filePath)
+		if err != nil {
+			return fmt.Errorf("failed to read config file: %w", err)
+		}
+	*/
+
+	// var config Config
+	err = yaml.Unmarshal(content, &config)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal config: %w", err)
 	}
-	*/
-	err = exsrapi.LoadConfig(filename, &config)
-	if err != nil {
-		return fmt.Errorf("failed to read config file: %w", err)
-	}
 
 	/*
-	// 環境変数からAPIキーを設定
-	for vendor, venderInf := range config.Venderlist {
-		if key := os.Getenv(venderInf.EvAPI); key != "" {
-			venderInf.Apikey = key
-			config.Venderlist[vendor] = venderInf
+		err = exsrapi.LoadConfig(filename, &config)
+		if err != nil {
+			return fmt.Errorf("failed to read config file: %w", err)
 		}
-	}
+	*/
+
+	/*
+		// 環境変数からAPIキーを設定
+		for vendor, venderInf := range config.Venderlist {
+			if key := os.Getenv(venderInf.EvAPI); key != "" {
+				venderInf.Apikey = key
+				config.Venderlist[vendor] = venderInf
+			}
+		}
 	*/
 
 	systemlist = make(map[string]string)
@@ -113,7 +140,12 @@ func LoadConfig(filename string) (err error) {
 
 	modellist = make(map[string]Modeltype)
 	modelkeys = make([]string, 0)
-	for key, mt := range config.Modellist {
+	// for key, mt := range config.Modellist {
+	for _, item := range config.Modellist {
+		key := item.Key.(string)
+		valByte, _ := yaml.Marshal(item.Value)
+		var mt Modeltype
+		yaml.Unmarshal(valByte, &mt)
 		modellist[key] = mt
 		modelkeys = append(modelkeys, key)
 	}
