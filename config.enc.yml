@@ -1,31 +1,23 @@
-systemlist:
-    none: 'いろんなことに興味があります。環境はNixOS26.05 KDE Plasma6, Ubuntu Server 24.04.02, FreeBSD 14.4です。ESP32Forth v7.0.7.21, Orange Pi Zero 3 Armbianでも遊んでいます '
-    NixOS: "LinuxMint22.3からNixOS26.05 KDE Plasma6へ移行しました。NixOSは経験がなかったのでなかなかたいへんでしたが、なんとか移行を完了しました。 \n 構成要素（vscode/go/mysql, LibreOffice, Gimp/Incscape, Qemu/KVM(Windows11Pro), Incus, distrobox/ubuntu(Windows版LINEなど), Joplin/Obsidian） \n 設定ファイルは以下のように機能ごとに分割して作成しています。 \n ``` \n   flake.nix \n   flake.lock \n cofiguration.nix \n hardware-configuration.nix \n home.nix # Home Manager設定 \n modules/ \n ├── desktop.nix      # デスクトップ環境(Radeon RX 6400を含む) \n ├── filesystems.nix  # ファイルシステム(btrfs)設定 \n ├── containers.nix   # コンテナ設定(incus, distrobox) \n ├── qemukvm.nix      # 仮想環境KVM)設定 \n ├── networking.nix   # ネットワーク設定 \n └── service.nix      # サービス設定 \n └── system.nix       # システム設定 \n └── backup.nix       # MySQLバックアップ設定 \n └── printer.nix      # プリンタ設定(ipp everywhere) \n └── user-timers/ \n .     └── default.nix \n .     └── jobs.nix \n ``` \n "
-    Go: あなたはGoのエクスパート。開発環境はNixOS26.05、実行環境はubuntu server 24.04.2 LTS、Go1.26.3、net/http+go-template、DBはMySQL Ver 8.0.41-0をgorpでアクセス。
-    ESP32: LinuxMint22.3上でvscode+PlatformIO+ESP-IDFを使ってプログラムを開発します。ただしESP32forthだけはArduino IDEでコンパイルしています。ボードはESP32-WROOM32とESP32-S3です。
-    Arduino: あなたは Arduino のエキスパート。開発にはvscode+PlatformIOを使っています。
-    OPi: あなたは Orange Pi Zero 3のエキスパート。OSはArmbianで開発はGo 1.25.5 + 1 Periph.io(LinuxMint vscodeでクロスコンパイル、delveでデバッグ)を使っています。
-    Mineclonia: '`minetest-server` をNixOSで起動することによって`Luanti - Mineclonia`を遊んでいます。`enable_damage = false, creative_mode = true`として、建築を楽しんでいます。modはworldedit等を使っています。red stoneによる自動化や遠隔操作にも興味があります'
 venderlist:
     Google:
         evapi: GOOGLE_API_KEY
-        apikey: ENC[AES256_GCM,data:zrfWfoOwnxodxflXbrs8OnSAfg5OQMxXqzSun2nPitCKYgIwAI5M,iv:CxL0MpUOOUlgKG4HjzHZL5cuo/YV1+dCRLgL5OGIWDQ=,tag:pvTcMME+sLHPt1gNZq8Rbg==,type:str] # seppina
+        apikey: ENC[AES256_GCM,data:0XdOirm/Mr9tFolx1OwSJ+3rJmnFMyYOngrApvjTTh0m/5i5074y,iv:4nEpaqbRZsTYkHNvoFSWQNZnz0u3bFQTPQZrXcyHs8E=,tag:73wU8ckKpkGvwcb53yytxA==,type:str] # seppina
         url: https://generativelanguage.googleapis.com/v1beta/models/
     Anthropic:
         evapi: CLAUDE_API_KEY
-        apikey: ENC[AES256_GCM,data:aZM0EJuCZWEEy3gfo6TpmFzL/EaVWFUljSuGkBPq8ULi1M/JybZTWXqaWnyCgvwcJDlZQ6DITK2JHX3+1M1SB5K5x5HHSmpqAqZ83yhQ5PP0eYj3EMbB07QaohpKqXvoSnHf0rp9E3c2mvx2,iv:ZsDjd0+Y9hkKBJ54/lVSEhq00h9G/OJp7ns8X7yuN9Y=,tag:Da890FHipZhwzI50rB4lXQ==,type:str]
+        apikey: ENC[AES256_GCM,data:54Wboo0kyPXFRDlZqg6u8tS5Wi3gFb5N9QH1M1vteNB96iaTuXJimsxfDmLgkLrMTWuSNiQZ8b7jwN90yO3TGJRU27vfvqp1VHbl8LHCLdUVHxDRyEYbR+ItDIkoPA6nVJyXySTNp2XUAdDS,iv:F5udK+2sSOVhQbtYfg+k28YLqtXoQnazupbk0K++3Co=,tag:e2a9lfYa5HL2jfPkQL6Y3Q==,type:str]
         url: https://api.anthropic.com/v1/messages
     DeepSeek:
         evapi: DEEPSEEK_API_KEY
-        apikey: ENC[AES256_GCM,data:K9YV4MweSVTmPs52HFfgdqpElqIEGWpqXYzS47v3pzjOOA8=,iv:1kedVSUrX5mnexgqv6HG8ssqbP9otBk87CNawZ0I3tI=,tag:6KSNZZP+Y5ebwv9QsqxdiA==,type:str]
+        apikey: ENC[AES256_GCM,data:HngMuBrwTReHXdAKbaSck14CZ7oNMWtUTk2emMdiTtZOUPw=,iv:vYoalqFiz9ASjW+a8kM2Q4dR7CJILm6epad5jUzCJng=,tag:a7/6Z6Qq+pYwhmAZNUdRPw==,type:str]
         url: https://api.deepseek.com/v1/chat/completions
     OpenAI:
         evapi: OPENAI_API_KEY
-        apikey: ENC[AES256_GCM,data:Ndj2mDJjOlf9SBuV57GPTpB4qn9GT41XU7WERZxiQqCRxCp5z7soYto+8k4V/hDflIVSGxTvv5eknqtYTFaIi8pASp+eRx/FouO6R4/p/osm9C61BvO/s19v0xZWUFd9L+OvldFi8/Smo9Vkqh9AzdMaCChjp4AWVsiiotc2dve2dVT69sP0N2LlRBGazfl8madOE6LIpyUtsgWbx6F3AJVgS1E=,iv:3Y4W9/zB4iK1TRjS2Jy/E6JEAGvgOcJVH10wS7wiaSM=,tag:7MWO7s0dbBMmCE2lOu0zeA==,type:str]
+        apikey: ENC[AES256_GCM,data:IKFAJgaQwvpOwVG57ZE/W//ZmOPU4l0AWihTuthcDGmK2vQSr10HlXhHPlbrzYvWW8atpYKQ6oDSk+pkr7Um1TV7tpCP1lzUlAtTnEfEvfKPUAfW17zuSHYsXxwjWC5+FSWqA668qiAXMKEeA965V2Tf5JvcX2KmKNDJC9SdBnwAMa9IiuDlS0GjLorp+aHVuVXzp2LjmZDdHrdj3RChiMp4Wzg=,iv:8NM5FRxRUkI8PIjaCb6ftPEgySB6dmse4wrDV9DfIbc=,tag:gKx2AXanqagOWAGN5xHU3g==,type:str]
         url: https://api.openai.com/v1/chat/completions
     Moonshot:
         evapi: MOONSHOT_API_KEY
-        apikey: ENC[AES256_GCM,data:pqDKFT17QjPH8R8veSSiTsC3WBx01+AEr3h620EyeUcVDPk5LjL8OgwgJiKYXbBXTPBa,iv:4SX/dZq1wLw1jCGT0YroZA/3MjWmjhZspZylpmt4nDo=,tag:CiJRqHwf34pThld69nShiQ==,type:str]
+        apikey: ENC[AES256_GCM,data:xaQX9iKlv3/36M+9cwNuGe9oJHtNO8QFHmaiMc5HjHfEp+hv/ItI2Ly3c3g1/n8npvvL,iv:XGM4SZhXaPy02A1bzwDLKkO8Gjg7SyWbYI4YFuSbeu8=,tag:FW9yXb7kOLzTSM58qr8Kig==,type:str]
         url: https://api.moonshot.ai/v1/chat/completions
 modellist:
     gemini-3.1-flash-lite:
@@ -102,14 +94,14 @@ sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRR3ZMQkxIODVOS1pwWFE2
-            bnk5bHRLRWs3Sk9kd2hMMkc1MkptRFdoMFg4ClRWbmFObDR3RjlRY0xQRDc4V3BD
-            M3dRanFGM29LbFhVWUx2eG5vK1JiQWsKLS0tIEp4Q1NwM1l0WUdjaXlsUmswd3Z0
-            T2FYQ3h5OGVJakZreGhvRVREdGt4ckEK2sIx1VjMrEGOrhulFesRS105Qr/n8Q2p
-            ml1AJGc7kHeseYEL5iKue6WiT5fxogn8UnEiguEEVsd/841T1J8yWg==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBGOVRxZDhpZytXVkN2SnV0
+            a3dJYkJhWTI0b3p5M3R5d1JHQmkyQUxFMERvCm1Wd1RmL2tRb2crMmJmaXFsTWhQ
+            bk0wYm9QSDJBWXpvOVJWa0JNWXFUUTAKLS0tIHhqSHlUSnVwaUtwVVVSbUJncFhC
+            SVVtSVorZk1tN08yWVhLdThwOFVTTUEKPbWdXK/pTAYj8UX46DJHLwQjyC/wswXM
+            TlwoFKGShUw+xHwRnakyLzKa8kHRy+m1UhX/KJ5N5BOrFLmyAQdmew==
             -----END AGE ENCRYPTED FILE-----
           recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
-    encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex)$
-    lastmodified: "2026-08-24T02:30:54Z"
-    mac: ENC[AES256_GCM,data:kN+02Gy35YJpPywWu0ZpdCOuvGMbiSAZheJRcOI+v4jKgDkISWdAkPe3sIvf8AxQDYqrVLuB+bdcrRnHXKQOWwqul4itSjIOfGsS6Q5sQc6e6PuNaTEIgrPL8juU3X/ERNuW/mTYA55/GQv3T0jMjrQtMYM9QZgfX8JYzkH04vk=,iv:bWkogd003SPkysqbVk5Qd4S9/zyFjYaZQPM3JD6/g5g=,tag:5WPWpxwMKoRW34XfcC8bCw==,type:str]
+    encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex|sr_acct|sr_pswd)$
+    lastmodified: "2026-10-05T01:26:46Z"
+    mac: ENC[AES256_GCM,data:2FkjCWicgGz9m6rX86kpAYbw64mx1dSsL+YvvncUnGEf95rzgYcquPXiazMAbAZKa+wkQXolugnJWtGBrlXXHJsS1HU06LvYlAJVf/wCK2ScBHykOUt+CVLtau5QEAKRIkCt3Dw4md0p0aKqaJBBkxTVxxnPqSritkDq5jjn/wk=,iv:1zyt/DS79Z/uow1XfdD1aQQjB/uAW/sAlCRk33XEPJ4=,tag:iey3yosUBPJu1M9qs+9gLg==,type:str]
     version: 3.13.1

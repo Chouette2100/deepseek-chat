@@ -5,8 +5,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -73,74 +75,86 @@ var verificationCodes = sync.Map{} // To store email verification codes temporar
 var config Config
 var content []byte
 
-// LoadConfig loads configuration from YAML file
-func LoadConfig(filePath string) (err error) {
-
+func readConfigFile(filePath string) ([]byte, error) {
 	if strings.Contains(filepath.Base(filePath), ".enc.") {
 		if os.Getenv("SOPS_AGE_KEY_FILE") == "" {
-			return fmt.Errorf("SOPS_AGE_KEY_FILE is empty")
+			return nil, fmt.Errorf("SOPS_AGE_KEY_FILE is empty")
 		}
 
-		content, err = exec.Command("sops", "--decrypt", filePath).Output()
+		content, err := exec.Command("sops", "--decrypt", filePath).Output()
 		if err != nil {
 			if exitErr, ok := err.(*exec.ExitError); ok {
-				return fmt.Errorf("sops --decrypt failed: %w: %s", err, strings.TrimSpace(string(exitErr.Stderr)))
+				return nil, fmt.Errorf("sops --decrypt failed: %w: %s", err, strings.TrimSpace(string(exitErr.Stderr)))
 			}
-			return fmt.Errorf("sops --decrypt failed: %w", err)
+			return nil, fmt.Errorf("sops --decrypt failed: %w", err)
 		}
-	} else {
-		content, err = os.ReadFile(filePath)
-		if err != nil {
-			err = fmt.Errorf("os.ReadFile: %w", err)
-			return err
-		}
+		return content, nil
 	}
 
-	/*
-		content, err = os.ReadFile(filePath)
-		if err != nil {
-			return fmt.Errorf("failed to read config file: %w", err)
-		}
-	*/
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("os.ReadFile: %w", err)
+	}
+	return content, nil
+}
 
-	// var config Config
+func applySystemList(items yaml.MapSlice) error {
+	systemlist = make(map[string]string)
+	systemkeys = make([]string, 0, len(items))
+	for _, item := range items {
+		key, ok := item.Key.(string)
+		if !ok {
+			return fmt.Errorf("systemlist key is not a string: %#v", item.Key)
+		}
+		val, ok := item.Value.(string)
+		if !ok {
+			return fmt.Errorf("systemlist value for %q is not a string: %#v", key, item.Value)
+		}
+		systemlist[key] = val
+		systemkeys = append(systemkeys, key)
+	}
+	config.Systemlist = items
+	return nil
+}
+
+// LoadSystemList loads system prompts from a separate YAML file.
+func LoadSystemList(filePath string) error {
+	content, err := readConfigFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	var systemConfig struct {
+		Systemlist yaml.MapSlice `yaml:"systemlist"`
+	}
+	if err := yaml.Unmarshal(content, &systemConfig); err != nil {
+		return fmt.Errorf("failed to unmarshal systemlist: %w", err)
+	}
+	return applySystemList(systemConfig.Systemlist)
+}
+
+// LoadConfig loads configuration from YAML file
+func LoadConfig(filePath string) (err error) {
+	content, err = readConfigFile(filePath)
+	if err != nil {
+		return err
+	}
+
 	err = yaml.Unmarshal(content, &config)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
-	/*
-		err = exsrapi.LoadConfig(filename, &config)
-		if err != nil {
-			return fmt.Errorf("failed to read config file: %w", err)
+	if len(config.Systemlist) > 0 {
+		if err := applySystemList(config.Systemlist); err != nil {
+			return err
 		}
-	*/
-
-	/*
-		// 環境変数からAPIキーを設定
-		for vendor, venderInf := range config.Venderlist {
-			if key := os.Getenv(venderInf.EvAPI); key != "" {
-				venderInf.Apikey = key
-				config.Venderlist[vendor] = venderInf
-			}
-		}
-	*/
-
-	systemlist = make(map[string]string)
-	systemkeys = make([]string, 0)
-	for _, item := range config.Systemlist {
-		key := item.Key.(string)
-		val := item.Value.(string)
-		systemlist[key] = val
-		systemkeys = append(systemkeys, key)
 	}
-	// log.Print(systemlist["NixOS"])
 
 	venderlist = config.Venderlist
 
 	modellist = make(map[string]Modeltype)
 	modelkeys = make([]string, 0)
-	// for key, mt := range config.Modellist {
 	for _, item := range config.Modellist {
 		key := item.Key.(string)
 		valByte, _ := yaml.Marshal(item.Value)
@@ -304,6 +318,9 @@ func HandlerDschat(
 
 	history = make([]qah, 0)
 
+	// ファイル添付を含む場合があるため multipart フォームをパースする
+	_ = r.ParseMultipartForm(32 << 20)
+
 	pageStr := r.FormValue("action")
 	currentID, _ := strconv.Atoi(r.FormValue("startid"))
 
@@ -380,6 +397,21 @@ func HandlerDschat(
 
 	top.Target = r.FormValue("target")
 
+	// 添付ファイルの受信
+	file, header, ferr := r.FormFile("attachment")
+	if ferr == nil && file != nil {
+		defer file.Close()
+		data, rerr := io.ReadAll(file)
+		if rerr == nil {
+			top.Qa.AttachmentName = header.Filename
+			top.Qa.AttachmentMime = header.Header.Get("Content-Type")
+			if top.Qa.AttachmentMime == "" {
+				top.Qa.AttachmentMime = http.DetectContentType(data)
+			}
+			top.Qa.AttachmentData = base64.StdEncoding.EncodeToString(data)
+		}
+	}
+
 	// for i := 9; i >= 0; i-- {
 	for i := range pageSize { // id=3242 gemini-2.5-flash-lite-preview-09-2025
 		it := r.FormValue(fmt.Sprintf("checkbox%d", i))
@@ -444,7 +476,7 @@ func HandlerDschat(
 		}
 	}
 
-	clmlist["qa_recordsDB"] = " id, timestamp, responsetime, modelname, maxtokens, temperature, `system`, question, answer, itokens, otokens, stopreason "
+	clmlist["qa_recordsDB"] = " id, timestamp, responsetime, modelname, maxtokens, temperature, `system`, question, answer, itokens, otokens, stopreason, attachmentname, attachmentmime, attachmentdata "
 	sqlst := ""
 	var intf []any
 	if top.Target == "" {

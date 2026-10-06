@@ -57,9 +57,11 @@ import (
 002002  認証情報をsops暗号化する
 002003  誤って削除したEncryption.goを復元し、init()をkeyInit()に変更する,VPS用のDBConfigを追加する。
 002100  モデル一覧が設定順に表示されるようにする（002002でもとに戻ってしまったところの修正）
+002200  添付ファイルの送信に対応する。
+002201  config.enc.ymlとsystemlist.ymlを分離する。
 */
 
-const version = "002100"
+const version = "002201"
 
 type CustomTime time.Time
 
@@ -82,18 +84,21 @@ func (ct *CustomTime) UnmarshalJSON(data []byte) error {
 
 // データベースの構造体　※ 修正注意
 type Qa_recordsDB struct {
-	Id           int       `json:"id"`
-	Timestamp    time.Time `json:"timestamp"`
-	Responsetime int64     `json:"responsetime"`
-	Modelname    string    `json:"model_name"`
-	Maxtokens    int       `json:"maxtokens"`
-	Temperature  float64   `json:"temperature"`
-	System       string    `json:"system"`
-	Question     string    `json:"question"`
-	Answer       string    `json:"answer"`
-	Itokens      int       `json:"itokens"`
-	Otokens      int       `json:"otokens"`
-	StopReason   string    `json:"stop_reason"`
+	Id             int       `json:"id"`
+	Timestamp      time.Time `json:"timestamp"`
+	Responsetime   int64     `json:"responsetime"`
+	Modelname      string    `json:"model_name"`
+	Maxtokens      int       `json:"maxtokens"`
+	Temperature    float64   `json:"temperature"`
+	System         string    `json:"system"`
+	Question       string    `json:"question"`
+	Answer         string    `json:"answer"`
+	Itokens        int       `json:"itokens"`
+	Otokens        int       `json:"otokens"`
+	StopReason     string    `json:"stop_reason"`
+	AttachmentName string    `json:"attachment_name"`
+	AttachmentMime string    `json:"attachment_mime"`
+	AttachmentData string    `json:"attachment_data"`
 }
 
 /*
@@ -159,6 +164,16 @@ func main() {
 	err = LoadConfig("config.enc.yml")
 	if err != nil {
 		log.Printf("LoadConfig() error. err = %v\n", err)
+		os.Exit(1)
+	}
+	if _, statErr := os.Stat("systemlist.yml"); statErr == nil {
+		err = LoadSystemList("systemlist.yml")
+		if err != nil {
+			log.Printf("LoadSystemList() error. err = %v\n", err)
+			os.Exit(1)
+		}
+	} else if !os.IsNotExist(statErr) {
+		log.Printf("systemlist.yml stat error. err = %v\n", statErr)
 		os.Exit(1)
 	}
 

@@ -11,6 +11,9 @@ CREATE TABLE `qa_records` (
       	`itokens` int NOT NULL,
       	`otokens` int NOT NULL,
       	`stopreason` varchar(256) NOT NULL,
+	`attachmentname` varchar(255) NOT NULL,
+	`attachmentmime` varchar(128) NOT NULL,
+	`attachmentdata` longtext NOT NULL,
 	PRIMARY KEY (`id`),
 	FULLTEXT INDEX ft_question_answer(question, answer)
 ) ENGINE=Mroonga DEFAULT CHARSET=utf8mb4;

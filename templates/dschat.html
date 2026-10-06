@@ -35,7 +35,7 @@
 
 <body>
     <h1>GenAI Q&A</h1>
-    <form id="askForm" action="/dschat" method="POST">
+    <form id="askForm" action="/dschat" method="POST" enctype="multipart/form-data">
         {{ $t := .Stmp }}
         {{ $s := .SIselected }}
         <label for="system">System:</label>
@@ -108,6 +108,9 @@
             <div id="md_question" class="markdown-body"></div>
             <button type="button" id="btn_question" onclick="toggleMD('question')" style="margin-left: 10px;">MD変換</button>
         </div>
+        <br>
+        <label for="attachment">添付ファイル:</label>
+        <input type="file" id="attachment" name="attachment">
         <br><button type="submit">送信</button>
         {{ end }}
         <hr>
@@ -150,6 +153,9 @@
                             <div id="md_question{{$i}}" class="markdown-body"></div>
                             <button type="button" id="btn_question{{$i}}" onclick="toggleMD('question{{$i}}')" style="margin-left: 10px;">MD変換</button>
                         </div>
+                        {{ if .AttachmentName }}
+                        <div style="font-size: 0.9em; color: #555;">添付: {{ .AttachmentName }} ({{ .AttachmentMime }})</div>
+                        {{ end }}
                     </td>
                 </tr>
                 <tr>
