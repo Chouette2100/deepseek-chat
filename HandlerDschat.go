@@ -39,9 +39,10 @@ type qah struct {
 var history []qah
 
 type Modeltype struct {
-	Model   string
-	Vendor  string
-	Comment string
+	Model                  string
+	Vendor                 string
+	Comment                string
+	UseMaxCompletionTokens bool `yaml:"use_max_completion_tokens"`
 }
 
 type Venderinf struct {
@@ -431,25 +432,8 @@ func HandlerDschat(
 		apiKey := venderlist[modellist[top.Qa.Modelname].Vendor].Apikey
 		url := venderlist[modellist[top.Qa.Modelname].Vendor].Url
 		model := modellist[top.Qa.Modelname].Model
-		switch model {
-		case "deepseek":
-			err = askOpenAI(&top.Qa, history, url, apiKey)
-		case "claude":
-			err = askClaude(&top.Qa, history, url, apiKey)
-		case "gemini":
-			err = askGemini(&top.Qa, history, apiKey)
-		case "openai":
-			err = askOpenAI(&top.Qa, history, url, apiKey)
-		case "openai2":
-			err = askOpenAI2(&top.Qa, history, url, apiKey)
-		case "moonshot":
-			err = askMoonshot(&top.Qa, history, url, apiKey)
-		default:
-			err = fmt.Errorf("invalid modelname: %s", top.Qa.Modelname)
-			log.Printf("%s\n", err.Error())
-			w.Write([]byte(err.Error()))
-			return
-		}
+		useMaxCompletionTokens := modellist[top.Qa.Modelname].UseMaxCompletionTokens
+		err = askOpenAICompatible(&top.Qa, history, model, url, apiKey, useMaxCompletionTokens)
 		if err != nil {
 			err = fmt.Errorf("API error. err = %w", err)
 			log.Printf("%s\n", err.Error())
@@ -532,6 +516,12 @@ func HandlerDschat(
 			}
 			if strings.Contains(model, "deepseek") {
 				return template.CSS("hsl(180, 100%, 30%)")
+			}
+			if strings.Contains(model, "gpt") || strings.Contains(model, "o1") || strings.Contains(model, "o3") {
+				return template.CSS("hsl(30, 100%, 50%)")
+			}
+			if strings.Contains(model, "kimi") || strings.Contains(model, "moonshot") {
+				return template.CSS("hsl(120, 100%, 30%)")
 			}
 			return template.CSS("hsl(270, 100%, 50%)")
 		},

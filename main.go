@@ -59,9 +59,10 @@ import (
 002100  モデル一覧が設定順に表示されるようにする（002002でもとに戻ってしまったところの修正）
 002200  添付ファイルの送信に対応する。
 002201  config.enc.ymlとsystemlist.ymlを分離する。
+002300  OpenAI互換APIに対応する。
 */
 
-const version = "002201"
+const version = "002300"
 
 type CustomTime time.Time
 

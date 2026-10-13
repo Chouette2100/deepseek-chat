@@ -13,7 +13,7 @@
             "program": "${fileDirname}",
             "env": {
                 "CGO_ENABLED": "0",
-                "SPORT": "8008",
+                "SPORT": "9999",
                 "SOPS_AGE_KEY_FILE": "/home/chouette/.config/age/key.txt",
             },
             "args": []

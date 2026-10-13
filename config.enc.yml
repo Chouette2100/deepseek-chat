@@ -1,107 +1,121 @@
 venderlist:
     Google:
         evapi: GOOGLE_API_KEY
-        apikey: ENC[AES256_GCM,data:0XdOirm/Mr9tFolx1OwSJ+3rJmnFMyYOngrApvjTTh0m/5i5074y,iv:4nEpaqbRZsTYkHNvoFSWQNZnz0u3bFQTPQZrXcyHs8E=,tag:73wU8ckKpkGvwcb53yytxA==,type:str] # seppina
-        url: https://generativelanguage.googleapis.com/v1beta/models/
+        apikey: ENC[AES256_GCM,data:MduXFe123SvO+VeV/0kml/Eql5bvBHLOT6GIF9Cp4rJ1rfAa6LmW,iv:Gj+hAQ0GGyPTs95fZxJKKCP5mSYWdzAsppBEq8+GMP8=,tag:k0FnwjuvNt8v18jvRjAG8g==,type:str] # seppina
+        url: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
     Anthropic:
         evapi: CLAUDE_API_KEY
-        apikey: ENC[AES256_GCM,data:54Wboo0kyPXFRDlZqg6u8tS5Wi3gFb5N9QH1M1vteNB96iaTuXJimsxfDmLgkLrMTWuSNiQZ8b7jwN90yO3TGJRU27vfvqp1VHbl8LHCLdUVHxDRyEYbR+ItDIkoPA6nVJyXySTNp2XUAdDS,iv:F5udK+2sSOVhQbtYfg+k28YLqtXoQnazupbk0K++3Co=,tag:e2a9lfYa5HL2jfPkQL6Y3Q==,type:str]
-        url: https://api.anthropic.com/v1/messages
+        apikey: ENC[AES256_GCM,data:617dNYaHjpuvyD/kihYAgyKAkQzrJ2fIya9339UpBD3lVLMykNAa2Qx7gh+CjIfxESGWgVYBYpCM9MaevnxazpRd5oelxZmkD4Kj/RGzuh5XHuVNBJC+YsR5UfPJ0f+9jMBeuy+vovOzWkzl,iv:Y9H25L8zaoo4f9JiqJHa5rrg9mU9ANIV1BsCanEjA4k=,tag:ROxsfIecPifpCaBRnn2Dcg==,type:str]
+        url: https://api.anthropic.com/v1/chat/completions
     DeepSeek:
         evapi: DEEPSEEK_API_KEY
-        apikey: ENC[AES256_GCM,data:HngMuBrwTReHXdAKbaSck14CZ7oNMWtUTk2emMdiTtZOUPw=,iv:vYoalqFiz9ASjW+a8kM2Q4dR7CJILm6epad5jUzCJng=,tag:a7/6Z6Qq+pYwhmAZNUdRPw==,type:str]
+        apikey: ENC[AES256_GCM,data:Dw/K/IFI5OcCmZ27sXO+7CeDZGwD69phbYkDlAJl66/eQ3Y=,iv:ezWj30U+nBkurEKQZgJev02dfZnAbjfDn/46gC7433g=,tag:or/QoEBv8VwfyxGnqs1JHQ==,type:str]
         url: https://api.deepseek.com/v1/chat/completions
     OpenAI:
         evapi: OPENAI_API_KEY
-        apikey: ENC[AES256_GCM,data:IKFAJgaQwvpOwVG57ZE/W//ZmOPU4l0AWihTuthcDGmK2vQSr10HlXhHPlbrzYvWW8atpYKQ6oDSk+pkr7Um1TV7tpCP1lzUlAtTnEfEvfKPUAfW17zuSHYsXxwjWC5+FSWqA668qiAXMKEeA965V2Tf5JvcX2KmKNDJC9SdBnwAMa9IiuDlS0GjLorp+aHVuVXzp2LjmZDdHrdj3RChiMp4Wzg=,iv:8NM5FRxRUkI8PIjaCb6ftPEgySB6dmse4wrDV9DfIbc=,tag:gKx2AXanqagOWAGN5xHU3g==,type:str]
+        apikey: ENC[AES256_GCM,data:wc06SJQTTNlIH7xRjMFydL0T+AivFPhZ519bYeeh0PHacuyTNiXH3rmQPSmdSwZbrNiaBDb3+R0VYZRlwx/46KIx25ZQaMg8mdvLK9qeF28QBSYfqlBhP6nIzFUZN0/a7HK/uZU5BcTCieKdlgYCzh6QYMKi6YNzQbG9mv7DtTxFOZcJ3k3w/UmTvbVQ4roOvZ/aTEbb42EBXqkm+L34g0kqUTA=,iv:8WPRcQQA2iMmHD7uHMtpYxrszTdDpjnhWg7424VdZNM=,tag:SC2YUUIzWyYkF0vDGHYcgw==,type:str]
         url: https://api.openai.com/v1/chat/completions
     Moonshot:
         evapi: MOONSHOT_API_KEY
-        apikey: ENC[AES256_GCM,data:xaQX9iKlv3/36M+9cwNuGe9oJHtNO8QFHmaiMc5HjHfEp+hv/ItI2Ly3c3g1/n8npvvL,iv:XGM4SZhXaPy02A1bzwDLKkO8Gjg7SyWbYI4YFuSbeu8=,tag:FW9yXb7kOLzTSM58qr8Kig==,type:str]
+        apikey: ENC[AES256_GCM,data:IY4oh0VdntyFJtVxUOk7kah4kpkTxhzGfnE7FtimqkioQIBC7fyDRxOW1OVpkljLJxdj,iv:ZyX6bdav0/syWCVyeq+B4sWoonSkhxc+tLKY+ieS5Tc=,tag:Jn5HVhAt8oU7pgDZFBpPzw==,type:str]
         url: https://api.moonshot.ai/v1/chat/completions
 modellist:
+    claude-haiku-5-5:
+        comment: 0.5/2.5
+        model: claude-haiku-5-5
+        vendor: Anthropic
+        use_max_completion_tokens: false
     gemini-3.1-flash-lite:
         comment: 1.5
-        model: gemini
+        model: gemini-3.1-flash-lite
         vendor: Google
     gemini-3.5-flash-lite:
         comment: 2.5
-        model: gemini
+        model: gemini-3.5-flash-lite
         vendor: Google
     gemini-3-flash-preview:
         comment: 3
-        model: gemini
+        model: gemini-3-flash-preview
         vendor: Google
     gemini-3.6-flash:
         comment: 7.5
-        model: gemini
+        model: gemini-3.6-flash
         vendor: Google
     gemini-3.5-flash:
         comment: 9
-        model: gemini
+        model: gemini-3.5-flash
         vendor: Google
     claude-haiku-4-5-20251001:
         comment: 5
-        model: claude
+        model: claude-haiku-4-5-20251001
         vendor: Anthropic
     claude-sonnet-5:
         comment: 10
-        model: claude
+        model: claude-sonnet-5
         vendor: Anthropic
     claude-opus-4:
         comment: 25
-        model: claude
+        model: claude-opus-4
         vendor: Anthropic
+        use_max_completion_tokens: false
     deepseek-v4-flash:
         comment: 0.66-1.32
-        model: openai
+        model: deepseek-v4-flash
         vendor: DeepSeek
+        use_max_completion_tokens: false
     deepseek-v4-pro:
         comment: 1.98/3.96
-        model: openai
+        model: deepseek-v4-pro
         vendor: DeepSeek
+        use_max_completion_tokens: false
     gpt-5.6-luna:
         comment: 1.2
-        model: openai
+        model: gpt-5.6-luna
         vendor: OpenAI
+        use_max_completion_tokens: false
     gpt-5.6-terra:
         comment: 12
-        model: openai2
+        model: gpt-5.6-terra
         vendor: OpenAI
+        use_max_completion_tokens: true
     gpt-5.6-sol:
         comment: 20
-        model: openai
+        model: gpt-5.6-sol
         vendor: OpenAI
+        use_max_completion_tokens: false
     kimi-k2.6:
         comment: 4
-        model: moonshot
+        model: kimi-k2.6
         vendor: Moonshot
+        use_max_completion_tokens: true
     kimi-k2.7-code:
         comment: 4
-        model: moonshot
+        model: kimi-k2.7-code
         vendor: Moonshot
+        use_max_completion_tokens: true
     kimi-k2.7-code-highspeed:
         comment: 8
-        model: moonshot
+        model: kimi-k2.7-code-highspeed
         vendor: Moonshot
+        use_max_completion_tokens: true
     kimi-k3:
-        comment: |
-            15.00
-        model: moonshot
+        comment: 15
+        model: kimi-k3
         vendor: Moonshot
+        use_max_completion_tokens: true
 enckey: 2DE395975D5D5AD29A7D4CFD95F37ECE9F54D7E27FEF7D59EFF593C5E74C9F2C
 sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBGOVRxZDhpZytXVkN2SnV0
-            a3dJYkJhWTI0b3p5M3R5d1JHQmkyQUxFMERvCm1Wd1RmL2tRb2crMmJmaXFsTWhQ
-            bk0wYm9QSDJBWXpvOVJWa0JNWXFUUTAKLS0tIHhqSHlUSnVwaUtwVVVSbUJncFhC
-            SVVtSVorZk1tN08yWVhLdThwOFVTTUEKPbWdXK/pTAYj8UX46DJHLwQjyC/wswXM
-            TlwoFKGShUw+xHwRnakyLzKa8kHRy+m1UhX/KJ5N5BOrFLmyAQdmew==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB2bG9sMG5IRlg3N3VkQjhM
+            eVR6ZlYrWENONFd5VVJSUzBDY3VVUit6QkRJClN5YUdIWVBYWTQvZm5ncHhBdXJp
+            bjgrekZaY0Y1Q1NGaHZnQzNkVDI0OFkKLS0tIFgrSFZGYnZSOXVTdnJudWJHSm5N
+            bWdNWXo0d2N1NnN0RllZZ0QvS1h0RDgK4qr5wruSwQWGQw+mY+gzEctXWxmREalZ
+            AmsAvy7HoaC/sGiE4EgJFHxNVqs/MhfPMbgaPyHRCIwRwrxNz8yJtg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
     encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex|sr_acct|sr_pswd)$
-    lastmodified: "2026-10-05T01:26:46Z"
-    mac: ENC[AES256_GCM,data:2FkjCWicgGz9m6rX86kpAYbw64mx1dSsL+YvvncUnGEf95rzgYcquPXiazMAbAZKa+wkQXolugnJWtGBrlXXHJsS1HU06LvYlAJVf/wCK2ScBHykOUt+CVLtau5QEAKRIkCt3Dw4md0p0aKqaJBBkxTVxxnPqSritkDq5jjn/wk=,iv:1zyt/DS79Z/uow1XfdD1aQQjB/uAW/sAlCRk33XEPJ4=,tag:iey3yosUBPJu1M9qs+9gLg==,type:str]
-    version: 3.13.1
+    lastmodified: "2026-10-13T22:20:04Z"
+    mac: ENC[AES256_GCM,data:Vsr5c1garaLwvszRYUcwM79dUjTIf/A3ncv2+gs9nR7XboN64SWowKbTIG/7OEzoR0N2ZvlDdgnGPDNkjmA8V+ZpiBO6tVfELNnZNgShE2v6CtctXGzNnxn1NmNRgMa5tOCRO09DkI/qUNLJMmJDWoStcbRzLsL3cc5KJTTaXBY=,iv:SO6fxoVdBPISEpP6bPNvHFBr7S2ezBK82+3mNbJwvQs=,tag:pV86YroZncRt1Iun9pdhVw==,type:str]
+    version: 3.13.3
