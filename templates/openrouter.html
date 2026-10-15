@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRouter Chat Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+            background: linear-gradient(180deg, #f8faff 0%, #eef4ff 100%);
+            color: #1d2433;
+            margin: 0;
+            padding: 24px;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid #dfe7ff;
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 16px 40px rgba(38, 80, 170, 0.08);
+        }
+        h1 {
+            margin-top: 0;
+            color: #173d75;
+        }
+        .panel {
+            background: #f7f9fe;
+            border: 1px solid #dfe8f7;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        label {
+            font-weight: 600;
+            color: #30476b;
+        }
+        select, textarea, input, button {
+            font-family: inherit;
+            font-size: 14px;
+        }
+        select, textarea, input {
+            border: 1px solid #cdd9ef;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: white;
+        }
+        textarea {
+            width: 60em;
+            max-width: 85vw;
+            min-height: 42px;
+            resize: vertical;
+        }
+        button {
+            background: linear-gradient(180deg, #2d6cdf 0%, #2457b8 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: filter 0.2s ease;
+        }
+        button:hover { filter: brightness(1.06); }
+        button.secondary {
+            background: linear-gradient(180deg, #7d8fb3 0%, #66789b 100%);
+        }
+        .markdown-body {
+            border: 1px solid #d9e2f3;
+            border-radius: 10px;
+            padding: 14px;
+            background: #fbfcff;
+            min-height: 1.2em;
+            width: 60em;
+            max-width: 85vw;
+            box-sizing: border-box;
+            display: none;
+            overflow-wrap: anywhere;
+        }
+        .markdown-body pre {
+            background: #f4f7ff;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .markdown-body code {
+            background: #edf4ff;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+        .markdown-body table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .markdown-body th, .markdown-body td {
+            border: 1px solid #d9e2f3;
+            padding: 8px 10px;
+            vertical-align: top;
+        }
+        .history-item {
+            border-top: 1px solid #e5ebf7;
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+        .small-text {
+            font-size: 12px;
+            color: #586a87;
+        }
+        .search-box {
+            width: 42em;
+            max-width: 85vw;
+        }
+        .history-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin: 8px 0 12px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OpenRouter Chat Demo</h1>
+        <form id="askForm" action="/openrouter" method="POST" enctype="multipart/form-data">
+            <div class="panel">
+                {{ $s := .SIselected }}
+                {{ $m := .Qa.Modelname }}
+                <div class="row">
+                    <label for="system">System:</label>
+                    <select name="system" onchange="document.getElementById('askForm').submit();">
+                        {{ range .Systemkeys }}
+                        <option value="{{.}}" {{ if eq $s . }}selected{{ end }}>{{ . }}</option>
+                        {{ end }}
+                    </select>
+                </div>
+                <div class="row">
+                    <label for="modelname">Model:</label>
+                    <select name="modelname">
+                        {{ range .Modellist }}
+                        <option value="{{.Model}}" {{ if eq $m .Model }}selected{{ end }}>{{ .Model }}{{if .Comment}}（{{.Comment}}）{{end}}</option>
+                        {{ end }}
+                    </select>
+
+                    <label for="maxtokens">Max Tokens:</label>
+                    <select name="maxtokens">
+                        <option value="300" {{ if eq .Qa.Maxtokens 300 }}selected{{ end }}>300</option>
+                        <option value="500" {{ if eq .Qa.Maxtokens 500 }}selected{{ end }}>500</option>
+                        <option value="1000" {{ if eq .Qa.Maxtokens 1000 }}selected{{ end }}>1000</option>
+                        <option value="2000" {{ if eq .Qa.Maxtokens 2000 }}selected{{ end }}>2000</option>
+                        <option value="4000" {{ if eq .Qa.Maxtokens 4000 }}selected{{ end }}>4000</option>
+                        <option value="8000" {{ if eq .Qa.Maxtokens 8000 }}selected{{ end }}>8000</option>
+                        <option value="20000" {{ if eq .Qa.Maxtokens 20000 }}selected{{ end }}>20000</option>
+                    </select>
+
+                    <label for="temperature">Temperature:</label>
+                    <select name="temperature">
+                        <option value="0.0" {{ if eq .Stmp "0.0" }}selected{{ end }}>0.0</option>
+                        <option value="0.2" {{ if eq .Stmp "0.2" }}selected{{ end }}>0.2</option>
+                        <option value="0.5" {{ if eq .Stmp "0.5" }}selected{{ end }}>0.5</option>
+                        <option value="1.0" {{ if eq .Stmp "1.0" }}selected{{ end }}>1.0</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <label for="question">質問:</label>
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <textarea id="question" name="question" rows="3"></textarea>
+                        <div id="md_question" class="markdown-body"></div>
+                        <button type="button" id="btn_question" onclick="toggleMD('question')">MD変換</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="attachment">添付ファイル:</label>
+                    <input type="file" id="attachment" name="attachment">
+                    <button type="submit">送信</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="row">
+                    <label for="startid">Start ID:</label>
+                    <input type="number" name="startid" value="{{ .StartID }}" style="width: 7em;">
+                    <button type="submit" class="secondary">移動/更新</button>
+                </div>
+                <div class="row">
+                    <label for="target">検索:</label>
+                    <input type="text" class="search-box" name="target" value="{{ .Target }}" placeholder="質問や回答を検索">
+                    <button type="submit" class="secondary">検索</button>
+                </div>
+            </div>
+
+            <div class="row">
+                {{ if .HasPrevious }}
+                <button type="submit" name="action" value="previous">前へ</button>
+                {{ end }}
+                {{ if .HasNext }}
+                <button type="submit" name="action" value="next">次へ</button>
+                {{ end }}
+            </div>
+
+            <div>
+                {{ $i := 0 }}
+                {{ range .Qalist }}
+                <div class="history-item">
+                    <div class="history-meta">
+                        <input type="hidden" name="id{{$i}}" value="{{.Id}}">
+                        <input type="checkbox" id="checkbox{{$i}}" name="checkbox{{$i}}">
+                        <input type="hidden" name="modelname{{$i}}" value="{{.Modelname}}">
+                        <span class="small-text">id={{ .Id }}</span>
+                        <span class="small-text">model={{ .Modelname }}</span>
+                        <span class="small-text">tokens={{ .Itokens }}/{{ .Otokens }}</span>
+                        <span class="small-text">time={{ TimeToStringY .Timestamp }} ({{ sprintfResponsetime "%5.1f" .Responsetime }}s)</span>
+                    </div>
+
+                    <div class="row">
+                        <textarea id="question{{$i}}" name="question{{$i}}" rows="3" readonly>{{ .Question }}</textarea>
+                        <div id="md_question{{$i}}" class="markdown-body"></div>
+                        <button type="button" id="btn_question{{$i}}" onclick="toggleMD('question{{$i}}')">MD変換</button>
+                    </div>
+
+                    {{ if .AttachmentName }}
+                    <div class="small-text">添付: {{ .AttachmentName }} ({{ .AttachmentMime }})</div>
+                    {{ end }}
+
+                    <div class="row">
+                        <textarea id="answer{{$i}}" name="answer{{$i}}" rows="6" readonly>{{ .Answer }}</textarea>
+                        <div id="md_answer{{$i}}" class="markdown-body"></div>
+                        <button type="button" id="btn_answer{{$i}}" onclick="toggleMD('answer{{$i}}')">MD変換</button>
+                    </div>
+                </div>
+                {{ $i = add $i 1 }}
+                {{ end }}
+            </div>
+
+            <div class="row">
+                {{ if .HasPrevious }}
+                <button type="submit" name="action" value="previous">前へ</button>
+                {{ end }}
+                {{ if .HasNext }}
+                <button type="submit" name="action" value="next">次へ</button>
+                {{ end }}
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const renderer = new marked.Renderer();
+        marked.setOptions({ renderer: renderer, breaks: true, gfm: true, silent: true });
+        mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+
+        function renderMermaidInElement(container, id) {
+            const blocks = container.querySelectorAll('pre code.language-mermaid, pre code.lang-mermaid');
+            blocks.forEach((codeBlock, index) => {
+                const pre = codeBlock.parentElement;
+                if (!pre) return;
+                const mermaidDiv = document.createElement('div');
+                mermaidDiv.className = 'mermaid';
+                mermaidDiv.id = `mermaid_${id}_${index}`;
+                mermaidDiv.textContent = codeBlock.textContent;
+                pre.replaceWith(mermaidDiv);
+            });
+            const nodes = container.querySelectorAll('.mermaid');
+            if (nodes.length > 0) {
+                mermaid.run({ nodes: nodes });
+            }
+        }
+
+        function toggleMD(id) {
+            const textarea = document.getElementById(id);
+            const markdownDiv = document.getElementById('md_' + id);
+            const button = document.getElementById('btn_' + id);
+            if (textarea.style.display !== 'none') {
+                let rawValue = textarea.value;
+                rawValue = rawValue.replace(/([^\s\w])\*\*/g, '$1\u200B**');
+                rawValue = rawValue.replace(/\*\*([^\s\w])/g, '**\u200B$1');
+                const mathBlocks = [];
+                rawValue = rawValue.replace(/(\\\[[\s\S]*?\\\]|\\\(.*?\\\))|(\$\$[\s\S]*?\$\$|\$.*?\$)/g, (match) => {
+                    const placeholder = `MATH_PLACEHOLDER_${mathBlocks.length}`;
+                    mathBlocks.push(match);
+                    return placeholder;
+                });
+                let parsedHTML = marked.parse(rawValue);
+                mathBlocks.forEach((math, index) => {
+                    parsedHTML = parsedHTML.replace(`MATH_PLACEHOLDER_${index}`, math);
+                });
+                markdownDiv.innerHTML = parsedHTML;
+                renderMathInElement(markdownDiv, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '\\[', right: '\\]', display: true }
+                    ],
+                    throwOnError: false
+                });
+                renderMermaidInElement(markdownDiv, id);
+                textarea.style.display = 'none';
+                markdownDiv.style.display = 'block';
+                button.textContent = 'TXT表示';
+            } else {
+                textarea.style.display = 'block';
+                markdownDiv.style.display = 'none';
+                button.textContent = 'MD変換';
+            }
+        }
+    </script>
+</body>
+</html>

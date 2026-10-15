@@ -60,9 +60,10 @@ import (
 002200  添付ファイルの送信に対応する。
 002201  config.enc.ymlとsystemlist.ymlを分離する。
 002300  OpenAI互換APIに対応する。
+002400  OpenRouterのAPI対応のモジュールを取り込む
 */
 
-const version = "002300"
+const version = "002400"
 
 type CustomTime time.Time
 
