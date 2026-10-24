@@ -13,8 +13,10 @@
             "program": "${fileDirname}",
             "env": {
                 "CGO_ENABLED": "0",
-                "SPORT": "9999",
-                "SOPS_AGE_KEY_FILE": "/home/chouette/.config/age/key.txt",
+                "SPORT": "9020",
+                "SOPS_AGE_KEY_FILE": "/home/chouette/.config/age/key2.txt",
+                "DBHOST": "127.0.0.1",
+                "DBPORT": "9901" // nix01
             },
             "args": []
         }

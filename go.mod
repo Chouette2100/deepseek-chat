@@ -1,16 +1,16 @@
 module deepseek-chat
 
-go 1.26.3
+go 1.26.7
 
 require (
 	github.com/Chouette2100/exsrapi/v2 v2.4.0
 	github.com/Chouette2100/srcom v0.0.2
-	github.com/Chouette2100/srdblib/v3 v3.1.0
+	github.com/Chouette2100/srdblib/v3 v3.4.1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-gorp/gorp v2.2.0+incompatible
-	github.com/go-sql-driver/mysql v1.10.0
+	github.com/go-sql-driver/mysql v1.10.1
 	github.com/golang-jwt/jwt/v4 v4.5.2
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.58.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -27,9 +27,9 @@ require (
 	github.com/juju/go4 v0.0.0-20160222163258-40d72ab9641a // indirect
 	github.com/juju/persistent-cookiejar v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/net v0.57.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/term v0.47.0 // indirect
 	gopkg.in/errgo.v1 v1.0.1 // indirect
 	gopkg.in/retry.v1 v1.0.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
